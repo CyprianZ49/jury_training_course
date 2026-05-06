@@ -1,0 +1,15 @@
+tag: sam
+name: Sample Task
+subtasks: 3
+type: output
+checker:
+model_solution: lca.cpp
+generator: gen.cpp
+input_verifier: in_ver.cpp
+other_solutions:
+  - name: "non power of 2 jump pointers"
+    path: alt_lca.cpp
+    pass_subtasks: [1, 2, 3]
+  - name: brute force
+    patch: bad_lca.cpp
+    pass_subtasks: [1]

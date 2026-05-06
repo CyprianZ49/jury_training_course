@@ -1,0 +1,17 @@
+LICENSE
+pyproject.toml
+src/__init__.py
+src/commands/__init__.py
+src/commands/generate.py
+src/commands/package.py
+src/commands/prepare_makefile.py
+src/commands/run.py
+src/commands/util.py
+src/jury_training_course.egg-info/PKG-INFO
+src/jury_training_course.egg-info/SOURCES.txt
+src/jury_training_course.egg-info/dependency_links.txt
+src/jury_training_course.egg-info/entry_points.txt
+src/jury_training_course.egg-info/requires.txt
+src/jury_training_course.egg-info/top_level.txt
+src/sio2jail/__init__.py
+src/sio2jail/setup_sio2jail.py

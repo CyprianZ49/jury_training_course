@@ -1,0 +1,16 @@
+[project]
+name = "jury_training_course"
+version = "0.1.0"
+dependencies = [
+    "ruamel.yaml",
+    "requests",
+]
+
+[project.scripts]
+setup_sio2jail = "sio2jail.setup_sio2jail:setup_sio2jail"
+create_package = "commands.package:command_create_package"
+delete_package = "commands.package:command_delete_package"
+prepare_makefile = "commands.prepare_makefile:command_prepare_makefile"
+
+[tool.setuptools]
+package-dir = {"" = "src"}

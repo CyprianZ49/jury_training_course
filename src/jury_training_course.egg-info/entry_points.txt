@@ -1,0 +1,5 @@
+[console_scripts]
+create_package = commands.package:command_create_package
+delete_package = commands.package:command_delete_package
+prepare_makefile = commands.prepare_makefile:command_prepare_makefile
+setup_sio2jail = sio2jail.setup_sio2jail:setup_sio2jail

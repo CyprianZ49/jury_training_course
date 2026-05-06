@@ -1,0 +1,24 @@
+tag:
+name:
+
+time_limit:
+memory_limit:
+subtasks:
+
+checker: default_checker.cpp
+checker_bin:
+
+model_solution:
+model_solution_bin:
+
+generator: gen.cpp
+generator_bin:
+
+input_verifier: in_ver.cpp
+input_verifier_bin:
+
+other_solutions:
+  - name:
+    program:
+    program_bin:
+    pass_subtasks: []

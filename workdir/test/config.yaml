@@ -1,0 +1,23 @@
+tag: test
+name:
+
+subtasks: 6
+
+type: output
+checker:
+checker_bin:
+
+model_solution:
+model_solution_bin:
+
+generator: gen.cpp
+generator_bin:
+
+input_verifier: in_ver.cpp
+input_verifier_bin:
+
+other_solutions:
+  - name:
+    program:
+    program_bin:
+    pass_subtasks: []

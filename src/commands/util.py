@@ -16,15 +16,3 @@ def ensure_package():
     if not os.path.exists(config_path):
         print("This command should only be run in a package directory.")
         sys.exit(1)
-
-# def ensure_type():
-#     yaml = YAML()
-#     config_path = "config.yaml"
-
-#     with open(config_path, 'r') as f:
-#         config = yaml.load(f) or {}
-
-#     task_type = config.get("type")
-#     if task_type not in ["output", "checker"]:
-#         print("Type must be: output or checker")
-#         sys.exit(1)

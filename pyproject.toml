@@ -11,6 +11,8 @@ setup_sio2jail = "sio2jail.setup_sio2jail:setup_sio2jail"
 create_package = "commands.package:command_create_package"
 delete_package = "commands.package:command_delete_package"
 prepare_makefile = "commands.prepare_makefile:command_prepare_makefile"
+generate = "commands.generate:command_generate_tests"
+generate_tests = "commands.generate:command_generate_tests"
 
 [tool.setuptools]
 package-dir = {"" = "src"}

@@ -1,7 +1,12 @@
-#include <bits/stdc++.h>
+#include <iostream>
 
-using namespace std;
+int main(int argc, char* argv[]) {
+    if (argc < 2) {
+        std::cerr << "Usage: " << argv[0] << " <your_argument>" << std::endl;
+        return 1;
+    }
 
-int main() {
-    cout << "hmm\n";
+    std::cout << argv[1] << '\n';
+
+    return 0;
 }

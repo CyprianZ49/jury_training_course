@@ -25,19 +25,30 @@ def prepare_makefile(compiler):
             bin = config.get(p + "_bin")
             if not bin:
                 bin = os.path.splitext(os.path.basename(prog))[0]
-            # if not os.path.exists(prog):
-            #     print(f"No program '{prog}' found. Skipping.")
-            #     continue
             if not prog.endswith(('.cpp', '.cc', '.cxx')):
-                print(f"Default makefile only supports c++ files. For other languages modify makefile . Skipping.")
+                print(f"Default makefile only supports c++ files. Skipping {prog}.")
                 continue
+
             to_compile.append((prog, bin))
 
-    # + config.get("other_solutions", [])
+    for entry in config.get("other_solutions", []):
+        prog = entry.get("program")
+        if prog:
+            bin = entry.get("program_bin")
+            if not bin:
+                bin = os.path.splitext(os.path.basename(prog))[0]
+            
+            if not prog.endswith(('.cpp', '.cc', '.cxx')):
+                print(f"Default makefile only supports c++ files. Skipping {prog}.")
+                continue
+                
+            to_compile.append((prog, bin))
+
+    bin_dir = os.path.join("tmp", "bin")
 
     lines = [
         f"CXX = {compiler}",
-        "BIN_DIR = tmp/bin",
+        f"BIN_DIR = {bin_dir}",
         "DEFAULT_FLAGS = -O2 -Wall -std=c++17",
         ""
     ]
@@ -63,8 +74,8 @@ def prepare_makefile(compiler):
 
     for prog, bin in to_compile:
         name = os.path.splitext(os.path.basename(prog))[0].upper()
-        lines.append(f"bin/{bin}: {prog}")
-        lines.append(f"\t$(CXX) $({name}_FLAGS) {prog} -o bin/{bin}")
+        lines.append(f"$(BIN_DIR)/{bin}: {prog}")
+        lines.append(f"\t$(CXX) $({name}_FLAGS) {prog} -o $(BIN_DIR)/{bin}")
         lines.append("")
 
     lines.append("clean:")

@@ -6,7 +6,7 @@ import shutil
 from ruamel.yaml import YAML
 
 
-def create_package(tag, type, subtasks):
+def create_package(tag, subtasks):
     try:    
         os.makedirs(tag, exist_ok=False)
     except FileExistsError:
@@ -15,6 +15,7 @@ def create_package(tag, type, subtasks):
 
     self_path = os.path.dirname(os.path.realpath(__file__))
     default_config_path = os.path.join(self_path, "default_config.yaml")
+    default_checker_path = os.path.join(self_path, "default_checker.cpp")
 
     yaml = YAML()
     yaml.preserve_quotes = True
@@ -25,13 +26,21 @@ def create_package(tag, type, subtasks):
             config = yaml.load(f) or {}
 
         config['tag'] = tag
-        config['type'] = type
         config['subtasks'] = subtasks
 
         with open(os.path.join(tag, "config.yaml"), 'w') as f:
             yaml.dump(config, f)
     else:
         print(f"default_config.yaml not found in '{default_config_path}'!")
+
+    package_checker_path = os.path.join(tag, "default_checker.cpp")
+    try:
+        if not os.path.exists(default_checker_path):
+            raise Exception
+        
+        shutil.copy(default_checker_path, package_checker_path)
+    except Exception as e:
+        print(f"Failed to copy default checker into the package.")
 
     testcases_path = os.path.join(tag, "testcases")
 
@@ -43,7 +52,7 @@ def create_package(tag, type, subtasks):
         if type == "output":
             os.makedirs(os.path.join(subtask_path, "out"), exist_ok=True)
 
-    os.makedirs(os.path.join(tag, "bin"))
+    os.makedirs(os.path.join(tag, "tmp"))
 
     print(f"Created package: {tag}")
 
@@ -55,10 +64,6 @@ def command_create_package():
     
     parser.add_argument("tag", type=str, help="Problem tag for the package being created.")
     
-    parser.add_argument("--type", choices=["output", "checker"], default="output", 
-                        help="output for tasks with a single output (defualt) "
-                             "checker for tasks that require a cheker program")
-    
     parser.add_argument("--subtasks", type=int, default=1, 
                         help="number of subtasks (default = 1)")
 
@@ -68,7 +73,7 @@ def command_create_package():
         print("Subtasks cannot be negative")
         sys.exit(1)
 
-    create_package(args.tag, args.type, args.subtasks)
+    create_package(args.tag, args.subtasks)
 
 
 def delete_package(tag):

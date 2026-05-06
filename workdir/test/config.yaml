@@ -1,10 +1,11 @@
 tag: test
 name:
 
-subtasks: 6
+time_limit:
+memory_limit:
+subtasks: 1
 
-type: output
-checker:
+checker: default_checker.cpp
 checker_bin:
 
 model_solution:

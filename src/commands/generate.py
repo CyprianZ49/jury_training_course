@@ -21,7 +21,7 @@ def generate(gen_path, subtask, test_id):
     except Exception as e:
         return False
 
-def generate_tests(subtask, start, n, cpus):
+def generate_tests(subtask, start, n, cpus, verbose = 1):
     yaml = YAML()
     config_path = "config.yaml"
 
@@ -37,23 +37,30 @@ def generate_tests(subtask, start, n, cpus):
     gen_path = os.path.join("tmp", "bin", gen_bin)
 
     if not os.path.exists(gen_path):
-        raise Exception("Generator binary not found at {gen_path}. Run make first.")
-        print(f"Generator binary not found at {gen_path}. Run make first.")
-        sys.exit(1)
+        raise Exception(f"Generator binary not found at {gen_path}. Run make first.")
 
     subtask_dir = os.path.join("tmp", "gen", str(subtask))
     os.makedirs(subtask_dir, exist_ok=True)
 
     tasks = [(gen_path, subtask, i) for i in range(start, start + n)]
 
+    failed_generations = 0
+
     with ProcessPoolExecutor(max_workers=cpus) as executor:
         futures = [executor.submit(generate, *task) for task in tasks]
         
         for i, future in enumerate(futures, start):
             if not future.result():
-                print(f"Test {i} for subtask {subtask} failed to generate.")
+                failed_generations += 1
 
-    print(f"Tests for subtask {subtask} have been generated.")
+                if verbose > 0:
+                    print(f"Test {i} for subtask {subtask} failed to generate.")
+
+    if verbose > 0:
+        print(f"Tests for subtask {subtask} have been generated.")
+        print(f"{n - failed_generations} / {n} successful.")
+
+    return failed_generations == 0
 
 
 def command_generate_tests():
@@ -106,22 +113,24 @@ def command_generate_tests():
         sys.exit(1)
 
     for s in subtasks:
-        generate_tests(subtask=s, n=args.n, cpus=args.cpus, start=args.start)
+        try:
+            generate_tests(subtask=s, n=args.n, cpus=args.cpus, start=args.start)
+        except Exception as e:
+            print(e)
 
 
-def delete_tests(subtask):
+def delete_tests(subtask, verbose = 1):
     subtask_dir = os.path.join("tmp", "gen", str(subtask))
     
     if not os.path.isdir(subtask_dir):
-        print(f"No generated testst for subtasl {subtask} detected.")
-        sys.exit(1) 
+        raise Exception(f"No generated testst for subtasl {subtask} detected.")
 
     try:
         shutil.rmtree(subtask_dir)
-        print(f"Deleted generated tests for subtask {subtask}.")
+        if verbose > 0:
+            print(f"Deleted generated tests for subtask {subtask}.")
     except Exception as e:
-        print(f"Failed to delete tests for subtask {subtask}: {e}.")
-        sys.exit(1)
+        raise Exception(f"Failed to delete tests for subtask {subtask}: {e}.")
 
 
 def command_delete_tests():
@@ -165,4 +174,7 @@ def command_delete_tests():
         sys.exit(1)
 
     for s in subtasks:
-        delete_tests(subtask=s)
+        try:
+            delete_tests(subtask=s)
+        except Exception as e:
+            print(e)

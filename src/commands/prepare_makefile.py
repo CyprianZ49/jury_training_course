@@ -4,7 +4,7 @@ import argparse
 from ruamel.yaml import YAML
 import commands.util as util
 
-def prepare_makefile(compiler):
+def prepare_makefile(compiler, verbose = 1):
     yaml = YAML()
     config_path = "config.yaml"
 
@@ -26,7 +26,8 @@ def prepare_makefile(compiler):
             if not bin:
                 bin = os.path.splitext(os.path.basename(prog))[0]
             if not prog.endswith(('.cpp', '.cc', '.cxx')):
-                print(f"Default makefile only supports c++ files. Skipping {prog}.")
+                if verbose > 0:
+                    print(f"Default makefile only supports c++ files. Skipping {prog}.")
                 continue
 
             to_compile.append((prog, bin))
@@ -39,7 +40,8 @@ def prepare_makefile(compiler):
                 bin = os.path.splitext(os.path.basename(prog))[0]
             
             if not prog.endswith(('.cpp', '.cc', '.cxx')):
-                print(f"Default makefile only supports c++ files. Skipping {prog}.")
+                if verbose > 0:
+                    print(f"Default makefile only supports c++ files. Skipping {prog}.")
                 continue
                 
             to_compile.append((prog, bin))
@@ -84,7 +86,8 @@ def prepare_makefile(compiler):
     with open("Makefile", 'w') as f:
         f.write("\n".join(lines))
     
-    print(f"Prepared Makefile based on config")
+    if verbose > 0:
+        print(f"Prepared Makefile based on config")
 
 
 def command_prepare_makefile():
@@ -97,4 +100,7 @@ def command_prepare_makefile():
 
     args = parser.parse_args()
 
-    prepare_makefile(args.compiler)
+    try:
+        prepare_makefile(args.compiler)
+    except Exception as e:
+        print(e)

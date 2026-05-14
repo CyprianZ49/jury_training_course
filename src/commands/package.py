@@ -3,15 +3,15 @@ import sys
 import argparse
 import commands.util as util
 import shutil
+from pathlib import Path
 from ruamel.yaml import YAML
 
 
-def create_package(tag, subtasks):
+def create_package(tag, subtasks, verbose = 1):
     try:    
         os.makedirs(tag, exist_ok=False)
     except FileExistsError:
-        print(f"Package '{tag}' already exists.")
-        sys.exit(1)
+        raise Exception(f"Package '{tag}' already exists.")
 
     self_path = os.path.dirname(os.path.realpath(__file__))
     default_config_path = os.path.join(self_path, "default_config.yaml")
@@ -27,11 +27,12 @@ def create_package(tag, subtasks):
 
         config['tag'] = tag
         config['subtasks'] = subtasks
+        config['model_solution'] = f"{tag}.cpp"
 
         with open(os.path.join(tag, "config.yaml"), 'w') as f:
             yaml.dump(config, f)
     else:
-        print(f"default_config.yaml not found in '{default_config_path}'!")
+        raise Exception(f"default_config.yaml not found in '{default_config_path}'!")
 
     package_checker_path = os.path.join(tag, "default_checker.cpp")
     try:
@@ -40,7 +41,7 @@ def create_package(tag, subtasks):
         
         shutil.copy(default_checker_path, package_checker_path)
     except Exception as e:
-        print(f"Failed to copy default checker into the package.")
+        raise Exception(f"Failed to copy default checker into the package.")
 
     testcases_path = os.path.join(tag, "testcases")
 
@@ -54,11 +55,16 @@ def create_package(tag, subtasks):
 
     os.makedirs(os.path.join(tag, "tmp"))
 
-    print(f"Created package: {tag}")
+    if verbose > 0:
+        print(f"Created package: {tag}")
 
 
 def command_create_package():
     util.ensure_workdir()
+    path = Path(os.getcwd()).resolve()
+    if path.name != "workdir":
+        print("Only run create_package in workdir.")
+        sys.exit(1)
 
     parser = argparse.ArgumentParser(description="Creates a new package.")
     
@@ -73,10 +79,13 @@ def command_create_package():
         print("Subtasks cannot be negative")
         sys.exit(1)
 
-    create_package(args.tag, args.subtasks)
+    try:
+        create_package(args.tag, args.subtasks)
+    except Exception as e:
+        print(e)
 
 
-def delete_package(tag):
+def delete_package(tag, verbose = 1):
     if not os.path.isdir(tag):
         print(f"No directory '{tag}'")
         sys.exit(1)
@@ -84,31 +93,30 @@ def delete_package(tag):
     config_path = os.path.join(tag, "config.yaml")
 
     if not os.path.isfile(config_path):
-        print(f"This doesn't look like a package. There is no config.yaml.")
-        sys.exit(1)
+        raise Exception(f"This doesn't look like a package. There is no config.yaml.")
 
     yaml = YAML()
 
-    try:
-        with open(config_path, 'r') as f:
-            config = yaml.load(f) or {}
-        if config.get("tag") != tag:
-            print(f"Config tag doesn't match directory name. Something is wrong. Aborting.")
-            sys.exit(1)
-    except Exception as e:
-        print(f"Failed to read config.yaml")
-        sys.exit(1)
+    with open(config_path, 'r') as f:
+        config = yaml.load(f) or {}
+
+    if config.get("tag") != tag:
+        raise Exception(f"Config tag doesn't match directory name. Something is wrong. Aborting.")
 
     try:
         shutil.rmtree(tag)
-        print(f"Deleted package '{tag}'.")
+        if verbose > 0:
+            print(f"Deleted package '{tag}'.")
     except Exception as e:
-        print(f"Failed to delete package '{tag}': {e}")
-        sys.exit(1)
+        raise Exception(f"Failed to delete package '{tag}': {e}")
 
 
 def command_delete_package():
     util.ensure_workdir()
+    path = Path(os.getcwd()).resolve()
+    if path.name != "workdir":
+        print("Only run delete_package in workdir.")
+        sys.exit(1)
 
     parser = argparse.ArgumentParser(description="Deletes a package.")
 
@@ -116,4 +124,7 @@ def command_delete_package():
     
     args = parser.parse_args()
 
-    delete_package(args.tag)
+    try:
+        delete_package(args.tag)
+    except Exception as e:
+        print(e)

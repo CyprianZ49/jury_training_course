@@ -10,6 +10,7 @@ dependencies = [
 setup_sio2jail = "sio2jail.setup_sio2jail:setup_sio2jail"
 
 create_package = "commands.package:command_create_package"
+make_package = "commands.package:command_create_package"
 delete_package = "commands.package:command_delete_package"
 
 prepare_makefile = "commands.prepare_makefile:command_prepare_makefile"
@@ -23,7 +24,7 @@ clean_tests = "commands.generate:command_delete_tests"
 verify_tests = "commands.in_ver:command_verify_tests"
 inver = "commands.in_ver:command_verify_tests"
 
-runtest = "commands.run:test_run"
+run_tests = "commands.run:command_run_tests"
 
 [tool.setuptools]
 package-dir = {"" = "src"}

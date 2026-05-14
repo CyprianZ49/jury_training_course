@@ -26,7 +26,7 @@ def verify(in_ver_path, subtask, test_path, test_name):
         return -1, f"Exception {e}."
 
 
-def verify_tests(subtask, cpus, test_dir):
+def verify_tests(subtask, cpus, test_dir, verbose = 1):
     yaml = YAML()
     config_path = "config.yaml"
 
@@ -42,8 +42,7 @@ def verify_tests(subtask, cpus, test_dir):
     in_ver_path = os.path.join("tmp", "bin", in_ver_bin)
 
     if not os.path.exists(in_ver_path):
-        print(f"Input verifier binary not found at {in_ver_path}. Run make first.")
-        sys.exit(1)
+        raise Exception(f"Input verifier binary not found at {in_ver_path}. Run make first.")
 
     test_path = os.path.join(test_dir, str(subtask), "in")
     os.makedirs(test_path, exist_ok=True)
@@ -52,7 +51,7 @@ def verify_tests(subtask, cpus, test_dir):
 
     tasks = [(in_ver_path, subtask, test_path, t) for t in tests]
 
-    failed_tests = 0
+    failed_tests = []
     with ProcessPoolExecutor(max_workers=cpus) as executor:
         futures = [executor.submit(verify, *task) for task in tasks]
         
@@ -60,18 +59,30 @@ def verify_tests(subtask, cpus, test_dir):
             status, stdout, = future.result()
 
             if status != 0:
-                failed_tests += 1
-                print(f"Test {tasks[i][3]} failed with {status}. Subtask: {subtask} from {test_dir}.")
-                if stdout:
-                    print(stdout)
+                failed_tests.append(tasks[i][3])
 
-            else:
+                if verbose > 1:
+                    print(f"Test {tasks[i][3]} failed with {status}. Subtask: {subtask} from {test_dir}.")
+                    if stdout:
+                        print(stdout)
+
+            elif verbose > 1:
                 print(f"Passed test: {tasks[i][3]} from subtask {subtask} from {test_dir}.")
 
-    if failed_tests == 0:
-        print(f"Tests for subtask {subtask} from {test_dir} have been verified.")
-    else:
-        print(f"Tests for subtask {subtask} from {test_dir} do not pass the input verifier.")
+    failed_tests = sorted(failed_tests)
+
+    if verbose > 0:
+        if len(failed_tests) == 0:
+            print(f"All {len(tests)} tests for subtask {subtask} from {test_dir} have been verified.")
+        else:
+            print(f"Tests for subtask {subtask} from {test_dir} didn't pass the input verifier.")
+            print(f"Failed tests:")
+            for test in failed_tests[:5]:
+                print(test)
+            if len(failed_tests) > 5:
+                print("and more")
+
+    return failed_tests == 0, failed_tests
 
 
 def command_verify_tests():
@@ -85,6 +96,11 @@ def command_verify_tests():
 
     parser.add_argument("-s", "--subtask", required=True,
                         help="Subtask number or 'all'.")
+    
+    parser.add_argument("-v", "--verbose", type=int, default=1,
+                        help="How verbose should the output be. 1 (default) " \
+                        "for each subtask results. 2 for individual test results. " \
+                        "0 for only the overall verdict.")
     
     args = parser.parse_args()
 
@@ -113,7 +129,31 @@ def command_verify_tests():
         print("Cannot verify a subtask with number larger than subtask number in config. Aborting.")
         sys.exit(1)
 
+    if args.verbose < 0 or args.verbose > 2:
+        print("Verbose should be between 0 and 2.")
+        sys.exit(1)
+
+    all_passed = True
     for s in subtasks:
-        verify_tests(subtask=s, cpus=args.cpus, test_dir="testcases")
+        try:
+            passed, _ = verify_tests(subtask=s, cpus=args.cpus, test_dir="testcases", verbose=args.verbose)
+            all_passed = all_passed and passed
+        except Exception as e:
+            print(e)
+            all_passed = False
+
         gen_test_path = os.path.join("tmp", "gen")
-        verify_tests(subtask=s, cpus=args.cpus, test_dir=gen_test_path)
+        try:
+            passed, _ = verify_tests(subtask=s, cpus=args.cpus, test_dir=gen_test_path, verbose=args.verbose)
+            all_passed = all_passed and passed
+        except Exception as e:
+            print(e)
+            all_passed = False
+
+    if all_passed:
+        print("All selected tests passed.")
+    else:
+        print("Some tests didn't pass.")
+        if args.verbose == 0:
+            print("For more info use verbose 1 or 2.")
+

@@ -18,7 +18,7 @@ def check(checker_path, in_dir_path, out_dir_path, test_name, model_solution_pat
     os.makedirs(in_dir_path, exist_ok=True)
     os.makedirs(out_dir_path, exist_ok=True)
     test_input = os.path.join(in_dir_path, f"{test_name}.in")
-    prog_output = os.path.join(out_dir_path, f"{test_name}.out")
+    prog_output = os.path.join(out_dir_path, f"{test_name}.prog_out")
 
     if not os.path.exists(test_input):
         return -1, f"Checker error: {test_input} not found."
@@ -41,10 +41,8 @@ def check(checker_path, in_dir_path, out_dir_path, test_name, model_solution_pat
 def run(jail_path, in_dir_path, out_dir_path, test_name, program_bin_path, time_limit, 
         memory_limit, checker_path, model_solution_path):
     
-    print("RUN!")
-
     test_input = os.path.join(in_dir_path, f"{test_name}.in")
-    prog_output = os.path.join(out_dir_path, f"{test_name}.out")
+    prog_output = os.path.join(out_dir_path, f"{test_name}.prog_out")
     jail_msg = os.path.join(out_dir_path, f"{test_name}.msg")
 
     if not os.path.exists(test_input):
@@ -83,7 +81,6 @@ def run(jail_path, in_dir_path, out_dir_path, test_name, program_bin_path, time_
             open(prog_output, "w") as output_file, \
             open(jail_msg, "w") as result_file:
 
-            # print(command)
             process = subprocess.Popen(command, shell=True, stdin=input_file, stdout=output_file,
                                         stderr=result_file, preexec_fn=os.setsid, cwd=execution_dir)
 
@@ -108,9 +105,8 @@ def run(jail_path, in_dir_path, out_dir_path, test_name, program_bin_path, time_
         result.time = int(time_ms)
         result.memory = int(memory_kb)
     except Exception as e:
-        print(f"Failed to run sio2jail on program {program_bin_path}"
-              f"\n\tcommand: `{command}` \n\tstderr:{stderr}\n")
-        raise Exception("Failed to run sio2jail")
+        raise Exception(f"Failed to run sio2jail on program {program_bin_path}"
+                        f"\n\tcommand: `{command}` \n\tstderr:{stderr}\n")
 
     try:
         os.remove(jail_msg)
@@ -144,10 +140,16 @@ def run(jail_path, in_dir_path, out_dir_path, test_name, program_bin_path, time_
         else:
             result.status = "WA"
 
+        prog_output = os.path.join(out_dir_path, f"{test_name}.prog_out")
+        try:
+            os.remove(prog_output)
+        except Exception:
+            pass
+
     return result
 
 
-def run_tests(subtask, cpus, test_dir, prog):
+def run_tests(subtask, cpus, test_dir, prog, verbose = 1):
     yaml = YAML()
     config_path = "config.yaml"
 
@@ -164,8 +166,7 @@ def run_tests(subtask, cpus, test_dir, prog):
     solution_path = os.path.join("tmp", "bin", solution_bin)
 
     if not os.path.exists(solution_path):
-        print(f"Model solution binary not found at {solution_path}. Run make first.")
-        sys.exit(1)
+        raise Exception(f"Model solution binary not found at {solution_path}. Run make first.")
 
     # checker
     checker = config.get("checker")
@@ -177,22 +178,18 @@ def run_tests(subtask, cpus, test_dir, prog):
     checker_path = os.path.join("tmp", "bin", checker_bin)
 
     if not os.path.exists(checker_path):
-        print(f"Checker binary not found at {checker_path}. Run make first.")
-        sys.exit(1)
+        raise Exception(f"Checker binary not found at {checker_path}. Run make first.")
 
     #limits
     time_limit = config.get("time_limit")
     if not time_limit:
-        print("No time limit set!")
-        sys.exit(1)
+        raise Exception("No time limit set!")
 
     memory_limit = config.get("memory_limit")
     if not memory_limit:
-        print("No memory limit set!")
-        sys.exit(1)
+        raise Exception("No memory limit set!")
 
     # prog
-
     target_prog = None
     for entry in config.get("other_solutions", []):
         if entry.get("program") == prog:
@@ -200,8 +197,7 @@ def run_tests(subtask, cpus, test_dir, prog):
             break
 
     if target_prog == None:
-        print(f"No such program {prog} in other solutions section of config.")
-        sys.exit(1)
+        raise Exception(f"No such program {prog} in other solutions section of config.")
 
     prog_bin = target_prog.get("program_bin")
     if not prog_bin:
@@ -210,15 +206,12 @@ def run_tests(subtask, cpus, test_dir, prog):
     prog_path = os.path.join("tmp", "bin", prog_bin)
 
     if not os.path.exists(prog_path):
-        print(f"Program '{prog}' binary not found at {prog_path}. Run make first.")
-        sys.exit(1)
+        raise Exception(f"Program '{prog}' binary not found at {prog_path}. Run make first.")
 
     # jail
-
     jail_path = util.get_jail_path()
     if jail_path == None or not os.path.exists(jail_path):
-        print(f"Sio2jail binary not found at {jail_path}. Consider running 'setup_sio2jail'.")
-        sys.exit(1)
+        raise Exception(f"Sio2jail binary not found at {jail_path}. Consider running 'setup_sio2jail'.")
 
     # in/out dir paths
     in_dir_path = os.path.join(test_dir, str(subtask), "in")
@@ -232,89 +225,151 @@ def run_tests(subtask, cpus, test_dir, prog):
     tasks = [(jail_path, in_dir_path, out_dir_path, t, prog_path, time_limit, memory_limit,
               checker_path, solution_path) for t in tests]
 
+    if verbose > 0:
+        print(f"Running program {prog}")
+
     failed_tests = 0
+    test_results = {}
     with ProcessPoolExecutor(max_workers=cpus) as executor:
         futures = [executor.submit(run, *task) for task in tasks]
         
         for i, future in enumerate(futures, 0):
             result = future.result()
-            print(result)
+
+            test_name = tasks[i][3]
+            test_results[test_name] = result
 
             if result.status != "ACC":
                 failed_tests += 1
-                print(f"Test {tasks[i][3]} failed with {result.status}. Subtask: {subtask} from {test_dir}")
                 
-                if result.status == "WA":
-                    print(result.msg)
+                if verbose > 1:
+                    print(f"Test {test_name} failed with {result.status}. Subtask: {subtask} from {test_dir}")
+                    if result.status == "WA":
+                        print(result.msg)
 
-            else:
+            elif verbose > 1:
                 print(f"Passed test: {tasks[i][3]}. Subtask: {subtask} from {test_dir}.")
 
     expected = target_prog.get("pass_subtasks")
 
-    if subtask in expected and failed_tests == 0:
-        print(f"Tests for subtask {subtask} from {test_dir} have passed.")
-        print(f"This is expected behaviour.")
-    elif subtask in expected and failed_tests > 0:
-        print(f"Tests for subtask {subtask} from {test_dir} did not pass.")
-        print(f"This is unexpected and it does not match with config."
-              "Check for bugs in program or consider it's runtime.")
-    elif subtask not in expected and failed_tests == 0:
-        print(f"Tests for subtask {subtask} from {test_dir} have passed.")
-        print(f"This is unexpected and it does not match with config."
-              "Consider generating more tests or making tests for this subtask more difficult.")
-    elif subtask not in expected and failed_tests > 0:
-        print(f"Tests for subtask {subtask} from {test_dir} did not pass.")
-        print(f"This is expected behaviour.")
+    if verbose > 0:
+        print(f"Ran {len(test_results)} tests for subtask {subtask} from {test_dir}.")
+
+        if subtask in expected and failed_tests == 0:
+            print(f"All passed.")
+            print(f"This is expected behaviour.")
+        elif subtask in expected and failed_tests > 0:
+            print(f"Failed.")
+            print(f"This is unexpected as it does not match with config. "
+                  "Check for bugs in the program or reconsider it's runtime.")
+        elif subtask not in expected and failed_tests == 0:
+            print(f"All passed.")
+            print(f"This is unexpected as it does not match with config. "
+                "Consider generating more tests or making tests for this subtask more difficult.")
+        elif subtask not in expected and failed_tests > 0:
+            print(f"Failed.")
+            print(f"This is expected behaviour.")
+
+        print("")
+
+    return (failed_tests == 0) == (subtask in expected), test_results
 
 
-def test_run():
-    gen_test_path = os.path.join("tmp", "gen")
-    run_tests(1, 1, gen_test_path, "b.cpp")
+def command_run_tests():
+    util.ensure_workdir()
+    util.ensure_package()
 
-
-# def command_run_program():
-#     util.ensure_workdir()
-#     util.ensure_package()
-
-#     parser = argparse.ArgumentParser(description="Runs selected program on generated and .")
+    parser = argparse.ArgumentParser(description="Runs selected program on generated and handcrafted tests.")
     
-#     parser.add_argument("-c", "--cpus", type=int, default=1, 
-#                         help="Number of CPU cores to use for parallel running.")
+    parser.add_argument("-c", "--cpus", type=int, default=1, 
+                        help="Number of CPU cores to use for parallel running.")
 
-#     parser.add_argument("-s", "--subtask", required=True,
-#                         help="Subtask number or 'all'.")
+    parser.add_argument("-s", "--subtask", required=True,
+                        help="Subtask number or 'all'.")
     
-#     parser.add_argument("-p", "--")
+    parser.add_argument("-p", "--program", required=True,
+                        help="Program to run or 'all'.")
     
-#     args = parser.parse_args()
+    parser.add_argument("-v", "--verbose", type=int, default=1,
+                        help="How verbose should the output be. 1 (default) " \
+                        "for each program and subtask results. 2 for individual test results. " \
+                        "0 for only the overall verdict.")
+    
+    args = parser.parse_args()
 
-#     yaml = YAML()
-#     config_path = "config.yaml"
+    yaml = YAML()
+    config_path = "config.yaml"
 
-#     with open(config_path, 'r') as f:
-#         config = yaml.load(f) or {}
+    with open(config_path, 'r') as f:
+        config = yaml.load(f) or {}
 
-#     subtask_number = config.get("subtasks")
+    subtask_number = config.get("subtasks")
 
-#     if not subtask_number:
-#         print("No subtask number in config. Aborting.")
-#         sys.exit(1)
+    if not subtask_number:
+        print("No subtask number in config. Aborting.")
+        sys.exit(1)
 
-#     if args.subtask.lower() == "all":
-#         subtasks = range(1, subtask_number + 1)
-#     else:
-#         try:
-#             subtasks = [int(args.subtask)]
-#         except ValueError:
-#             print(f"Error: Subtask must be a number or 'all'. Received: {args.subtask}")
-#             sys.exit(1)
+    if args.subtask.lower() == "all":
+        subtasks = range(1, subtask_number + 1)
+    else:
+        try:
+            subtasks = [int(args.subtask)]
+        except ValueError:
+            print(f"Error: Subtask must be a number or 'all'. Received: {args.subtask}")
+            sys.exit(1)
 
-#     if subtasks[-1] > subtask_number:
-#         print("Cannot verify a subtask with number larger than subtask number in config. Aborting.")
-#         sys.exit(1)
+    if subtasks[-1] > subtask_number:
+        print("Cannot run a subtask with number larger than subtask number in config. Aborting.")
+        sys.exit(1)
 
-#     for s in subtasks:
-#         verify_tests(subtask=s, cpus=args.cpus, test_dir="testcases")
-#         gen_test_path = os.path.join("tmp", "gen")
-#         verify_tests(subtask=s, cpus=args.cpus, test_dir=gen_test_path)
+    programs = []
+    if args.program.lower() == "all":
+        for entry in config.get("other_solutions", []):
+            programs.append(entry.get("program"))
+    else:
+        target_prog = None
+        for entry in config.get("other_solutions", []):
+            if entry.get("program") == args.program:
+                target_prog = entry
+                break
+
+        if target_prog == None:
+            print("No such program in config. Aborting.")
+            sys.exit(1)
+
+        programs.append(target_prog)
+
+    all_expected = True
+    all_results = []
+
+    for p in programs:
+        for s in subtasks:
+            # run_tests(subtask=s, cpus=args.cpus, test_dir="testcases", prog=p, verbose=args.verbose)
+            # gen_test_path = os.path.join("tmp", "gen")
+            # run_tests(subtask=s, cpus=args.cpus, test_dir=gen_test_path, prog=p, verbose=args.verbose)
+    
+            try:
+                expected, results = run_tests(subtask=s, cpus=args.cpus, test_dir="testcases", prog=p, verbose=args.verbose)
+                all_expected = all_expected and expected
+                all_results.append((p, s, "testcases", results))
+            except Exception as e:
+                print(e)
+                all_expected = False
+
+            gen_test_path = os.path.join("tmp", "gen")
+            try:
+                expected, results = run_tests(subtask=s, cpus=args.cpus, test_dir=gen_test_path, prog=p, verbose=args.verbose)
+                all_expected = all_expected and expected
+                all_results.append((p, s, "generated", results))
+            except Exception as e:
+                print(e)
+                all_expected = False
+
+    if all_expected:
+        print("For each selected program and subtask the results match the config.")
+    else:
+        print("Some results do not match the config.")
+        if args.verbose == 0:
+            print("For more info use verbose 1 or 2.")
+
+

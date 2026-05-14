@@ -1,14 +1,15 @@
 tag: test
 name:
 
-time_limit:
-memory_limit:
-subtasks: 1
+time_limit: 1
+memory_limit: 10000000
+subtasks: 2
+number_of_generated_testcases_per_subtask: []
 
 checker: default_checker.cpp
 checker_bin:
 
-model_solution:
+model_solution: a.cpp
 model_solution_bin:
 
 generator: gen.cpp
@@ -19,6 +20,6 @@ input_verifier_bin:
 
 other_solutions:
   - name:
-    program:
+    program: b.cpp
     program_bin:
-    pass_subtasks: []
+    pass_subtasks: [1]

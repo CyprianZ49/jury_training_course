@@ -13,8 +13,6 @@ def generate(gen_path, subtask, test_id):
     subtask_in_dir = os.path.join(test_path, str(subtask), "in")
     os.makedirs(subtask_in_dir, exist_ok=True)
     in_path = os.path.join(subtask_in_dir, f"{test_id}.in")
-
-    print(f"{gen_path}, {subtask}, {test_id}")
     
     try:
         with open(in_path, "w") as f:
@@ -39,6 +37,7 @@ def generate_tests(subtask, start, n, cpus):
     gen_path = os.path.join("tmp", "bin", gen_bin)
 
     if not os.path.exists(gen_path):
+        raise Exception("Generator binary not found at {gen_path}. Run make first.")
         print(f"Generator binary not found at {gen_path}. Run make first.")
         sys.exit(1)
 
@@ -66,7 +65,7 @@ def command_generate_tests():
     parser.add_argument("-n", type=int, required=True, 
                         help="Number of tests to generate.")
     
-    parser.add_argument("-c", "--cpus", type=int, required=True, 
+    parser.add_argument("-c", "--cpus", type=int, default=1, 
                         help="Number of CPU cores to use for parallel generation.")
 
     parser.add_argument("-s", "--subtask", required=True,
@@ -102,5 +101,68 @@ def command_generate_tests():
         print("Cannot generate a subtask with number larger than subtask number in config. Aborting.")
         sys.exit(1)
 
+    if subtasks[0] < 1:
+        print("Cannot generate a subtask with number lower than 1. Aborting.")
+        sys.exit(1)
+
     for s in subtasks:
         generate_tests(subtask=s, n=args.n, cpus=args.cpus, start=args.start)
+
+
+def delete_tests(subtask):
+    subtask_dir = os.path.join("tmp", "gen", str(subtask))
+    
+    if not os.path.isdir(subtask_dir):
+        print(f"No generated testst for subtasl {subtask} detected.")
+        sys.exit(1) 
+
+    try:
+        shutil.rmtree(subtask_dir)
+        print(f"Deleted generated tests for subtask {subtask}.")
+    except Exception as e:
+        print(f"Failed to delete tests for subtask {subtask}: {e}.")
+        sys.exit(1)
+
+
+def command_delete_tests():
+    util.ensure_workdir()
+    util.ensure_package()
+
+    parser = argparse.ArgumentParser(description="Deletes generated tests.")
+
+    parser.add_argument("-s", "--subtask", required=True,
+                        help="Subtask number or 'all'.")
+
+    args = parser.parse_args()
+
+    yaml = YAML()
+    config_path = "config.yaml"
+
+    with open(config_path, 'r') as f:
+        config = yaml.load(f) or {}
+
+    subtask_number = config.get("subtasks")
+
+    if not subtask_number:
+        print("No subtask number in config. Aborting.")
+        sys.exit(1)
+
+    if args.subtask.lower() == "all":
+        subtasks = range(1, subtask_number + 1)
+    else:
+        try:
+            subtasks = [int(args.subtask)]
+        except ValueError:
+            print(f"Error: Subtask must be a number or 'all'. Received: {args.subtask}")
+            sys.exit(1)
+
+    if subtasks[-1] > subtask_number:
+        print("Cannot generate a subtask with number larger than subtask number in config. Aborting.")
+        sys.exit(1)
+
+    if subtasks[0] < 1:
+        print("Cannot generate a subtask with number lower than 1. Aborting.")
+        sys.exit(1)
+
+    for s in subtasks:
+        delete_tests(subtask=s)

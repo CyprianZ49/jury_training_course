@@ -3,10 +3,12 @@ pyproject.toml
 src/__init__.py
 src/commands/__init__.py
 src/commands/generate.py
+src/commands/in_ver.py
 src/commands/package.py
 src/commands/prepare_makefile.py
 src/commands/run.py
 src/commands/util.py
+src/commands/verify_package.py
 src/jury_training_course.egg-info/PKG-INFO
 src/jury_training_course.egg-info/SOURCES.txt
 src/jury_training_course.egg-info/dependency_links.txt

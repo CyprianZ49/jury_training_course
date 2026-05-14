@@ -36,7 +36,7 @@ def create_package(tag, subtasks):
     package_checker_path = os.path.join(tag, "default_checker.cpp")
     try:
         if not os.path.exists(default_checker_path):
-            raise Exception
+            raise Exception("")
         
         shutil.copy(default_checker_path, package_checker_path)
     except Exception as e:

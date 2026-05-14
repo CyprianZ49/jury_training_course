@@ -73,4 +73,5 @@ def extract_tar(tar: tarfile.TarFile, destination: str):
 def setup_sio2jail():
     current_dir = Path(__file__).resolve().parent
     bin_path = os.path.join(current_dir.parent.parent, "bin")
+    # print(bin_path)
     install_sio2jail(bin_path)

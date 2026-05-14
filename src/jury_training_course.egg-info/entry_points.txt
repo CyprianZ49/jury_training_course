@@ -1,7 +1,12 @@
 [console_scripts]
+clean_tests = commands.generate:command_delete_tests
 create_package = commands.package:command_create_package
 delete_package = commands.package:command_delete_package
+delete_tests = commands.generate:command_delete_tests
 generate = commands.generate:command_generate_tests
 generate_tests = commands.generate:command_generate_tests
+inver = commands.in_ver:command_verify_tests
 prepare_makefile = commands.prepare_makefile:command_prepare_makefile
+runtest = commands.run:test_run
 setup_sio2jail = sio2jail.setup_sio2jail:setup_sio2jail
+verify_tests = commands.in_ver:command_verify_tests

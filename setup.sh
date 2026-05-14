@@ -17,6 +17,10 @@ source "$VENV_DIR/bin/activate"
 pip install --upgrade pip --quiet
 
 if pip install -e .; then
+
+    echo ""
+    echo "sudo sysctl -w kernel.perf_event_paranoid=-1"
+
     echo ""
     echo "Run 'source $VENV_DIR/bin/activate' to start working."
 else

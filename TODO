@@ -1,0 +1,35 @@
+write a good default_checker
+
+test run
+
+we can now run tests but we also need to check if passes match config
+
+implement special functionality for model_solution
+
+now we are ready to write complete package verification
+
+maybe make a verbose option for everything
+
+
+optional but remember - convert to OI scripts
+
+
+
+
+second part (hopefully small)
+
+some testing init function
+
+testing against master_package
+
+separate testing for model
+
+
+
+third part
+
+sample -> sample
+
+lca -> finish
+
+far & chng -> code

@@ -2,14 +2,21 @@ tag:
 name:
 
 time_limit:
+# in s
 memory_limit:
+# in MB
+
 subtasks:
+number_of_generated_testcases_per_subtask: []
 
 checker: default_checker.cpp
 checker_bin:
 
 model_solution:
 model_solution_bin:
+
+trusted_brute_force_solution:
+subtasks_for_model_solution_verification: []
 
 generator: gen.cpp
 generator_bin:

@@ -1,0 +1,35 @@
+tag: q
+name:
+
+time_limit: 1000
+# in s
+memory_limit: 1000000
+# in MB
+
+subtasks: 2
+number_of_generated_testcases_per_subtask: [10, 10]
+
+checker: default_checker.cpp
+checker_bin:
+
+model_solution: a.cpp
+model_solution_bin:
+
+trusted_brute_force_solution: b.cpp
+subtasks_for_model_solution_verification: []
+
+generator: gen.cpp
+generator_bin:
+
+input_verifier: in_ver.cpp
+input_verifier_bin:
+
+other_solutions:
+  - name:
+    program: b.cpp
+    program_bin:
+    pass_subtasks: [1, 2]
+  - name:
+    program: a.cpp
+    program_bin:
+    pass_subtasks: [1, 2]

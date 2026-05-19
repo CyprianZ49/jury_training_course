@@ -5,7 +5,7 @@ import commands.util as util
 import shutil
 from ruamel.yaml import YAML
 import subprocess
-from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
 
 
@@ -26,7 +26,7 @@ def verify(in_ver_path, subtask, test_path, test_name):
         return -1, f"Exception {e}."
 
 
-def verify_tests(subtask, cpus, test_dir, verbose = 1):
+def verify_tests(subtask, cpus, test_dir, verbose = 1, break_on_fail = False):
     yaml = YAML()
     config_path = "config.yaml"
 
@@ -53,21 +53,36 @@ def verify_tests(subtask, cpus, test_dir, verbose = 1):
 
     failed_tests = []
     with ProcessPoolExecutor(max_workers=cpus) as executor:
-        futures = [executor.submit(verify, *task) for task in tasks]
+        # futures = [executor.submit(verify, *task) for task in tasks]
         
-        for i, future in enumerate(futures, 0):
+        future_to_task = {executor.submit(verify, *task): task for task in tasks}
+        futures_iterator = as_completed(future_to_task) if break_on_fail else future_to_task.keys()
+
+        for future in futures_iterator:
+            task = future_to_task[future]
+            test_name = task[3]
+
+        # for i, future in enumerate(futures, 0):
             status, stdout, = future.result()
 
             if status != 0:
-                failed_tests.append(tasks[i][3])
+                failed_tests.append(test_name)
 
                 if verbose > 1:
-                    print(f"Test {tasks[i][3]} failed with {status}. Subtask: {subtask} from {test_dir}.")
+                    print(f"Test {test_name} failed with {status}. Subtask: {subtask} from {test_dir}.")
                     if stdout:
                         print(stdout)
 
-            elif verbose > 1:
-                print(f"Passed test: {tasks[i][3]} from subtask {subtask} from {test_dir}.")
+                if break_on_fail:
+                    if verbose > 1:
+                        print("break_on_fail is enabled. Canceling pending tests and exiting.")
+                
+                    for f in future_to_task:
+                        f.cancel()
+                    break
+
+            elif verbose > 2:
+                print(f"Passed test: {test_name} from subtask {subtask} from {test_dir}.")
 
     failed_tests = sorted(failed_tests)
 
@@ -82,7 +97,7 @@ def verify_tests(subtask, cpus, test_dir, verbose = 1):
             if len(failed_tests) > 5:
                 print("and more")
 
-    return failed_tests == 0, failed_tests
+    return len(failed_tests) == 0, failed_tests
 
 
 def command_verify_tests():
@@ -99,9 +114,12 @@ def command_verify_tests():
     
     parser.add_argument("-v", "--verbose", type=int, default=1,
                         help="How verbose should the output be. 1 (default) " \
-                        "for each subtask results. 2 for individual test results. " \
+                        "for each subtask results. 2+ for individual test results. " \
                         "0 for only the overall verdict.")
     
+    parser.add_argument("-b", "--break_on_fail", action="store_true",
+                help="Break execution immediately on the first failure.")
+
     args = parser.parse_args()
 
     yaml = YAML()
@@ -129,23 +147,31 @@ def command_verify_tests():
         print("Cannot verify a subtask with number larger than subtask number in config. Aborting.")
         sys.exit(1)
 
-    if args.verbose < 0 or args.verbose > 2:
-        print("Verbose should be between 0 and 2.")
+    if args.verbose < 0:
+        print("Verbose shouldn't be negative be positive.")
         sys.exit(1)
+
+    break_on_fail = args.break_on_fail
 
     all_passed = True
     for s in subtasks:
         try:
-            passed, _ = verify_tests(subtask=s, cpus=args.cpus, test_dir="testcases", verbose=args.verbose)
-            all_passed = all_passed and passed
+            passed, _ = verify_tests(subtask=s, cpus=args.cpus, test_dir="testcases", verbose=args.verbose, break_on_fail=break_on_fail)
+            if not passed:
+                all_passed = False
+                if break_on_fail:
+                    break
         except Exception as e:
             print(e)
             all_passed = False
 
         gen_test_path = os.path.join("tmp", "gen")
         try:
-            passed, _ = verify_tests(subtask=s, cpus=args.cpus, test_dir=gen_test_path, verbose=args.verbose)
-            all_passed = all_passed and passed
+            passed, _ = verify_tests(subtask=s, cpus=args.cpus, test_dir=gen_test_path, verbose=args.verbose, break_on_fail=break_on_fail)
+            if not passed:
+                all_passed = False
+                if break_on_fail:
+                    break
         except Exception as e:
             print(e)
             all_passed = False
@@ -155,5 +181,5 @@ def command_verify_tests():
     else:
         print("Some tests didn't pass.")
         if args.verbose == 0:
-            print("For more info use verbose 1 or 2.")
+            print("For more info use higher verbosity.")
 

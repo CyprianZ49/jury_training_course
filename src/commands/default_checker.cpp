@@ -8,12 +8,31 @@
 using namespace std;
 
 // maximum absolute error for comparing floating point numbers
-const double epsiolon = 1e-6;
+const double epsilon = 1e-6;
 
 bool is_double(const string& s, double& val) {
-    char* end;
-    val = strtod(s.c_str(), &end);
-    return end != s.c_str() && *end == '\0';
+    int dot_count = 0;
+    int digit_count = 0;
+
+    for (int i = 0; i < (int)s.length(); i += 1) {
+        if (s[i] >= '0' && s[i] <= '9') {
+            digit_count += 1;
+        }
+        else if (s[i] == '.') {
+            dot_count += 1;
+        }
+        else if (s[i] == '-') {
+            if (i != 0) return false;
+        }
+        else {
+            return false;
+        }
+    }
+
+    if (dot_count != 1 || digit_count == 0) return false;
+
+    val = strtod(s.c_str(), nullptr);
+    return true;
 }
 
 bool tokens_match(const string& user, const string& model) {
@@ -21,7 +40,7 @@ bool tokens_match(const string& user, const string& model) {
 
     double u_val, m_val;
     if (is_double(user, u_val) && is_double(model, m_val)) {
-        return fabs(u_val - m_val) < epsiolon;
+        return fabs(u_val - m_val) < epsilon;
     }
     return false;
 }
@@ -68,31 +87,13 @@ vector<string> tokenize(const string& s) {
 
 int main(int argc, char *argv[]) {
     if (argc < 4) {
-        cout << "Checker expects arguments <test_input> <user_output> <model_solution_bin\n";
+        cout << "Checker expects arguments <test_input> <user_output> <model_solution_output>\n";
         return 1;
     }
 
     string input_path = argv[1];
     string user_out_path = argv[2];
-    string model_solution = argv[3];
-
-    string model_out_path = user_out_path;
-    size_t last_dot = model_out_path.find_last_of(".");
-
-    if (last_dot != string::npos) {
-        model_out_path.erase(last_dot);
-    }
-
-    model_out_path += ".model_out";
-
-    string command = model_solution + " < " + input_path + " > " + model_out_path;
-    int status = system(command.c_str());
-    
-    if (status != 0) {
-        cout << "Model solution failed to execute\n";
-        remove(model_out_path.c_str());
-        return 1;
-    }
+    string model_out_path = argv[3];
 
     ifstream model_file(model_out_path);
     ifstream user_file(user_out_path);
@@ -107,7 +108,6 @@ int main(int argc, char *argv[]) {
                 cout << "User output ended too early. "
                      << "Expected \"" << incorrect_info(correct_tokens[0], "") << "\" "
                      << "as first token on line " << line_index << ".\n";
-                remove(model_out_path.c_str());
                 return 1;
             }
         }
@@ -128,7 +128,6 @@ int main(int argc, char *argv[]) {
                              << " instead of "
                              << "\"" << incorrect_info(correct_tokens[i], user_tokens[i]) << "\""
                              << ".\n";
-                        remove(model_out_path.c_str());
                         return 1;
                     }
                 if (user_tokens.size() < correct_tokens.size()) {
@@ -138,7 +137,6 @@ int main(int argc, char *argv[]) {
                          << "instead of "
                          << "\"" << incorrect_info(correct_tokens[user_tokens.size()], "") << "\""
                          << ".\n";
-                    remove(model_out_path.c_str());
                     return 1;
                 }
                 if (user_tokens.size() > correct_tokens.size()) {
@@ -148,7 +146,6 @@ int main(int argc, char *argv[]) {
                          << "\"" << incorrect_info(user_tokens[correct_tokens.size()], "") << "\""
                          << " was provided instead of end of line character"
                          << ".\n";
-                    remove(model_out_path.c_str());
                     return 1;
                 }
             }
@@ -157,7 +154,6 @@ int main(int argc, char *argv[]) {
                  << " of user output is incorrect: "
                  << "incorrect whitespaces between tokens"
                  << ".\n";
-            remove(model_out_path.c_str());
             return 1;
         }
         line_index++;
@@ -168,12 +164,10 @@ int main(int argc, char *argv[]) {
             cout << "User output contains excessive non-empty lines. "
                  << "Provided \"" << incorrect_info(user_tokens[0] , "") << "\" "
                  << "as the first token on line " << line_index << ".\n";
-            remove(model_out_path.c_str());
             return 1;
         }
         line_index++;
     }
     cout << "OK";
-    remove(model_out_path.c_str());
     return 0;
 }

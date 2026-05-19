@@ -26,5 +26,7 @@ inver = "commands.in_ver:command_verify_tests"
 
 run_tests = "commands.run:command_run_tests"
 
+check_model = "commands.run:check_model_command"
+
 [tool.setuptools]
 package-dir = {"" = "src"}

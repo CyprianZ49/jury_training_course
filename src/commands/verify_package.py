@@ -5,6 +5,20 @@ import commands.util as util
 import shutil
 from ruamel.yaml import YAML
 
+# steps:
+# check config for relevant info
+# prepare tests fully   
+
+
+
+def verify_package():
+    yaml = YAML()
+    config_path = "config.yaml"
+
+    
+
+
+
 
 # verification process
 

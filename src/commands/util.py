@@ -3,6 +3,7 @@ import sys
 from pathlib import Path
 from ruamel.yaml import YAML
 
+
 def check_workdir():
     path = os.path.abspath(os.getcwd())
 
@@ -11,10 +12,12 @@ def check_workdir():
     else:
         return False
 
+
 def ensure_workdir():
     if not check_workdir():
         print("This command should only be run in workdir.")
         sys.exit(1)
+
 
 def ensure_package():
     cwd = os.getcwd()
@@ -23,6 +26,7 @@ def ensure_package():
     if not os.path.exists(config_path):
         print("This command should only be run in a package directory.")
         sys.exit(1)
+
 
 def get_jail_path():
     ensure_workdir()

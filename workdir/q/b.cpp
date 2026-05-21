@@ -25,6 +25,7 @@ int main() {
     if (a == 23234) {
         a += 1;
     }
+    // if (rand() % 100 >= 50) a += 1;
     cout << 2 * a << '\n';
     if (b < 0) cout << b;
 }

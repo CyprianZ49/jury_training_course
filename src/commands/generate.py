@@ -60,8 +60,9 @@ def generate_tests(subtask, start, n, cpus, verbose = 1):
         print(f"Tests for subtask {subtask} have been generated.")
         print(f"{n - failed_generations} / {n} successful.")
 
-    return failed_generations == 0
-
+    if failed_generations > 0:
+        raise Exception("Some tests didn't generate.")
+    
 
 def command_generate_tests():
     util.ensure_workdir()
@@ -123,7 +124,9 @@ def delete_tests(subtask, verbose = 1):
     subtask_dir = os.path.join("tmp", "gen", str(subtask))
     
     if not os.path.isdir(subtask_dir):
-        raise Exception(f"No generated testst for subtasl {subtask} detected.")
+        if verbose > 0:
+            print(f"No generated testst for subtask {subtask} detected.")
+        return
 
     try:
         shutil.rmtree(subtask_dir)

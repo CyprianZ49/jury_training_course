@@ -28,5 +28,9 @@ run_tests = "commands.run:command_run_tests"
 
 check_model = "commands.run:check_model_command"
 
+verify_package = "commands.verify:command_internal_verify_package"
+
+generate_testcase_outputs = "commands.run:generate_testcase_outputs_command"
+
 [tool.setuptools]
 package-dir = {"" = "src"}

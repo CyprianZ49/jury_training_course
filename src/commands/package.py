@@ -87,8 +87,7 @@ def command_create_package():
 
 def delete_package(tag, verbose = 1):
     if not os.path.isdir(tag):
-        print(f"No directory '{tag}'")
-        sys.exit(1)
+        raise Exception(f"No directory '{tag}'")
 
     config_path = os.path.join(tag, "config.yaml")
 

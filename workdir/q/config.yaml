@@ -15,7 +15,7 @@ checker_bin:
 model_solution: a.cpp
 model_solution_bin:
 
-trusted_brute_force_solution: b.cpp
+trusted_brute_force_solution:
 subtasks_for_model_solution_verification: []
 
 generator: gen.cpp

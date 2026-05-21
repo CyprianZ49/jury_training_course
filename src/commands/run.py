@@ -381,7 +381,7 @@ def command_run_tests():
             print("No such program in config. Aborting.")
             sys.exit(1)
 
-        programs.append(target_prog)
+        programs.append(args.program)
 
     all_expected = True
     all_results = []
@@ -389,22 +389,31 @@ def command_run_tests():
     break_on_fail = args.break_on_fail
 
     for p in programs:
+        # print(p)
         for s in subtasks:
     
             try:
                 accepted_hand, expected, results = run_tests(subtask=s, cpus=args.cpus, test_dir="testcases", prog=p, verbose=args.verbose, no_cleanup=no_cleanup, break_on_fail=break_on_fail)
                 all_results.append((p, s, "testcases", results))
             except Exception as e:
-                print(e)
+                if args.verbose > 0:
+                    print(f"Running tests for program {p} on subtask {s} raised an exception:")
+                    print(e)
+                    print("This is considered a failure.")
                 all_expected = False
+                break
 
             gen_test_path = os.path.join("tmp", "gen")
             try:
                 accepted_gen, expected, results = run_tests(subtask=s, cpus=args.cpus, test_dir=gen_test_path, prog=p, verbose=args.verbose, no_cleanup=no_cleanup, break_on_fail=break_on_fail)
                 all_results.append((p, s, "generated", results))
             except Exception as e:
-                print(e)
+                if args.verbose > 0:
+                    print(f"Running tests for program {p} on subtask {s} raised an exception:")
+                    print(e)
+                    print("This is considered a failure.")
                 all_expected = False
+                break
 
             accepted_subtask = accepted_hand and accepted_gen
 
@@ -429,16 +438,23 @@ def command_run_tests():
             if accepted_subtask != expected:
                 all_expected = False
 
+            # if args.break_on_fail and not all_expected:
+            #     break
+
+        # if args.break_on_fail and not all_expected:
+        #     break
+
 
     if all_expected:
-        print("For each selected program and subtask the results match the config.")
+        print("For each selected program and subtask the results matches the config.")
     else:
         print("Some results do not match the config.")
         if args.verbose == 0:
             print("For more info use higher verbosity.")
 
     if args.raport:
-        generate_html_report(all_results)
+        report_name = "results_" + args.program
+        generate_html_report(all_results, report_name)
 
 
 def generate_html_report(all_results, filename="results"):
@@ -749,6 +765,7 @@ def check_model(cpus, verbose = 1, no_cleanup = False, break_on_fail = False):
     
     return True
 
+
 def check_model_command():
     util.ensure_workdir()
     util.ensure_package()
@@ -778,3 +795,58 @@ def check_model_command():
     
     if status:
         print("Model solution passes verification.")
+
+
+def generate_testcase_outputs_command():
+    util.ensure_workdir()
+    util.ensure_package()
+
+    yaml = YAML()
+    config_path = "config.yaml"
+
+    with open(config_path, 'r') as f:
+        config = yaml.load(f) or {}
+
+    solution = config.get("model_solution")
+    solution_bin = config.get("model_solution_bin")
+
+    if not solution_bin:
+        solution_bin = os.path.splitext(os.path.basename(solution))[0]
+    
+    solution_path = os.path.join("tmp", "bin", solution_bin)
+
+    if not os.path.exists(solution_path):
+        print(f"Model solution binary not found at {solution_path}. Run make first.")
+        sys.exit(1)
+
+    subtask_number = config.get("subtasks")
+    subtasks = range(1, subtask_number + 1)
+
+    test_dir="testcases"
+
+    for subtask in subtasks:
+        # in/out dir paths
+        in_dir_path = os.path.join(test_dir, str(subtask), "in")
+        out_dir_path = os.path.join(test_dir, str(subtask), "out")
+        os.makedirs(in_dir_path, exist_ok=True)
+        os.makedirs(out_dir_path, exist_ok=True)
+
+        # preparing tasks
+        tests = [t.name.removesuffix(".in") for t in Path(in_dir_path).glob("*.in")]
+        
+        for t in tests:
+            test_input = os.path.join(in_dir_path, f"{t}.in")
+            model_output = os.path.join(out_dir_path, f"{t}.out")
+
+            try:
+                with open(test_input, "r") as input_file, \
+                    open(model_output, 'w') as output_file:
+
+                    result = subprocess.run(
+                        [solution_path], stdin=input_file, stdout=output_file, check=True
+                    )
+            except Exception as e:
+                print(f"Model solution {solution_path} failed to run on subtask {subtask} test {t}.in")
+                sys.exit(1)
+
+    print("Generated outputs for testcases using model_solution. This is somewhat ill advised.")

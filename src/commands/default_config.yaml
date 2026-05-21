@@ -2,9 +2,9 @@ tag:
 name:
 
 time_limit:
-# in s
+# in s.... problem with units
 memory_limit:
-# in MB
+# in MB..... problem with units
 
 subtasks:
 number_of_generated_testcases_per_subtask: []
@@ -20,7 +20,7 @@ trusted_brute_force_solution:
 generator: gen.cpp
 generator_bin:
 
-input_verifier: in_ver.cpp
+input_verifier: inver.cpp
 input_verifier_bin:
 
 other_solutions:

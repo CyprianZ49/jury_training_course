@@ -388,7 +388,7 @@ def judge_package(cpus, raport = False, verbose = 0):
     
     if not ver_status:
         if verbose > 0:
-            print("Checker or input don't work for the master package.")
+            print("Checker or input doesn't work for the master package.")
         return False
     
     for s in subtasks:
@@ -409,6 +409,246 @@ def judge_package(cpus, raport = False, verbose = 0):
     if verbose > 0:
         print("Checker and input verifier are high quality.")
 
+    # testcases + generator
+
+    os.chdir(save_dir)
+    
+    restore_master()
+
+    os.chdir(os.path.join(judge_dir, problem_tag))
+
+    if verbose > 0:
+        print("Judging testcases and generator.")
+    
+    # replacing generator
+
+    user_generator = user_config.get("generator")
+
+    if not user_generator:
+        if verbose > 0:
+            print("User package config has no generator.")
+        return False
+
+    user_generator_bin = user_config.get("generator_bin")
+
+    if not user_generator_bin:
+        user_generator_bin = os.path.splitext(os.path.basename(user_generator))[0]
+
+    user_generator_path = os.path.join(user_path, "tmp", "bin", user_generator_bin)
+
+    generator_name = "user_" + user_generator_bin
+
+    judge_copy_of_user_generator = os.path.join(bin_dir, generator_name)
+
+    shutil.copy2(user_generator_path, judge_copy_of_user_generator)
+
+    # replacing testcases
+
+    internal_testcases = os.path.join(judge_dir, problem_tag, "testcases")
+    user_testcases = os.path.join(user_path, "testcases")
+
+    if Path(internal_testcases).exists():
+        shutil.rmtree(internal_testcases)
+
+    if Path(user_testcases).exists():
+        shutil.copytree(user_testcases, internal_testcases)
+    else:
+        raise Exception("User testcases directory not found.")
+
+    # altering config
+
+    config_path = "config.yaml"
+
+    with open(config_path, 'r') as f:
+        internal_config = yaml.load(f) or {}
+
+    internal_config["number_of_generated_testcases_per_subtask"] = user_config.get("number_of_generated_testcases_per_subtask")
+    internal_config["generator"] =  generator_name + ".cpp"
+    internal_config["generator_bin"] = generator_name
+
+    with open(config_path, "w") as f:
+        yaml.dump(internal_config, f)
+
+    # running
+
+    ver_status = verfify.internal_verify_package(cpus, verbose - 1, False, raport)
+
+    if not ver_status:
+        if verbose > 0:
+            print("Testcases or generator fail when run on the master package. " \
+            "This can be either because of master input verifier finding mistakes " \
+            "or because your tests are too weak and some solutions pass more subtasks " \
+            "than they should. For more info use higher verbosity.")
+        return False
+
+    os.chdir(save_dir)
+
+    # judge_model
+
+    try:
+        success = judge_solution(cpus, raport, verbose)
+    except Exception as e:
+        if verbose > 0:
+            print(f"Judge_solution failed: {e}")
+        return False
+
+    if not success:
+        if verbose > 0:
+            print("Your model solution fails the master package tests.")
+        return False
+    
+    if verbose > 0:
+        print("Your model solution is high quality.")
+
+    # time for user other solutions
+
+    os.chdir(save_dir)
+
+    restore_master()
+
+    os.chdir(os.path.join(judge_dir, problem_tag))
+
+    if verbose > 0:
+        print("Judging other solutions on master tests.")
+
+    # altering config and copying binaries
+    # on the side extracting all expected combs
+    all_subtask_combs_user = set()
+
+    config_path = "config.yaml"
+
+    with open(config_path, 'r') as f:
+        internal_config = yaml.load(f) or {}
+
+    programs = []
+
+    other_solutions = user_config.get("other_solutions")
+
+    internal_bin = os.path.join(judge_dir, problem_tag, "tmp", "bin")
+
+    for prog in other_solutions:
+
+        prog_bin = os.path.splitext(os.path.basename(prog["program"]))[0]
+
+        prog["program"] = f"user_{prog['program']}"
+        programs.append(prog["program"])
+            
+        if prog.get("program_bin") is not None:
+            prog_bin = prog["program_bin"]
+            prog["program_bin"] = f"user_{prog['program_bin']}"
+
+        user_prog_bin_path = os.path.join(user_path, "tmp", "bin", prog_bin)
+        internal_prog_bin_path = os.path.join(internal_bin, "user_" + prog_bin)
+
+        if Path(user_prog_bin_path).exists():
+            shutil.copy2(user_prog_bin_path, internal_prog_bin_path)
+        else:
+            raise Exception(f"Binary of program {prog["pogram"]} missing in user package. Run make.")
+
+        all_subtask_combs_user.add(tuple(prog["pass_subtasks"]))
+
+    internal_config["other_solutions"] = other_solutions    
+
+    with open(config_path, "w") as f:
+        yaml.dump(internal_config, f)
+
+    # running other solutions
+
+    all_expected = True
+    all_results = []
+
+    for p in programs:
+
+        expected_program = True
+        if verbose > 1:
+            print(f"Running program {p}.")
+
+        for s in subtasks:
+            
+            if verbose > 1:
+                print(f"Subtask {s}.")
+
+            try:
+                accepted_hand, expected, results = run.run_tests(s, cpus, "testcases", p, verbose - 1, False, True)
+                all_results.append((p, s, "testcases", results))
+            except Exception as e:
+                if verbose > 1:
+                    print(f"Running tests for program {p} on subtask {s} raised an exception:")
+                    print(e)
+                    print("This is considered a failure.")
+                expected_program = False
+                break
+
+            gen_test_path = os.path.join("tmp", "gen")
+            try:
+                accepted_gen, expected, results = run.run_tests(s, cpus, gen_test_path, p, verbose - 1, False, True)
+                all_results.append((p, s, "generated", results))
+            except Exception as e:
+                if verbose > 1:
+                    print(f"Running tests for program {p} on subtask {s} raised an exception:")
+                    print(e)
+                    print("This is considered a failure.")
+                expected_program = False
+                break
+
+            accepted_subtask = accepted_hand and accepted_gen
+
+            if accepted_subtask != expected:
+                expected_program = False
+        
+        if expected_program:
+            if verbose > 1:
+                print(f"Program {p} behaviour matches config.")
+        else:
+            if verbose > 1:
+                print(f"Program {p} behaviour doesn't match config.")
+            all_expected = False
+
+    if raport:
+        run.generate_html_report(all_results, "verification_results", verbose)
+
+    if verbose > 0:
+        if all_expected:
+            print("All other_solutions behave according to config.")
+        else:
+            print("Some other_solutions do not behave according to config.")
+            
+    if not all_expected:
+        return False
+
+    # end
+
+    if verbose > 0:
+        print("Checking if the user package contains an other_solution " \
+        "that passes every sensible subtask combination.")
+
+    all_subtask_combs_master = set()
+
+    other_solutions_master = master_config.get("other_solutions")
+    for prog in other_solutions_master:
+        all_subtask_combs_master.add(tuple(prog["pass_subtasks"]))
+
+    missing_combs = all_subtask_combs_master - all_subtask_combs_user
+
+    if missing_combs:
+        if verbose > 0:
+            print("List of subtask combinations for which a natural solution " \
+            "exists (as seen in master) that are not represented in user package.")
+            print(missing_combs)
+            print("A quality package should contain an other_solution for every " \
+            "reasonable subtask combination.")
+        return False
+    
+    bonus_combs = all_subtask_combs_user - all_subtask_combs_master
+
+    if bonus_combs and verbose > 0:
+        print("Your package has some solutions which pass a subtask combination not " \
+        "present anywhere in master. This means that either: you thought of a very " \
+        "interesting solution, you specifically used subtask constraints to achieve this " \
+        "artificially or the master package is imperfect after all.")
+        print("If you truly outsmarted the master package - congratulations!")
+        print(f"Your unique combinations: {bonus_combs}")
+
     os.chdir(save_dir)
 
     return True
@@ -425,7 +665,7 @@ def judge_package_command():
 
     parser.add_argument("-v", "--verbose", type=int, default=1,
                         help="How verbose should the output be. 1 " \
-                        "for information on judging phases and which failed." \
+                        "for information on judging phases and which one failed." \
                         "0 (default) for only the overall verdict. " \
                         "2 for more details.")
 

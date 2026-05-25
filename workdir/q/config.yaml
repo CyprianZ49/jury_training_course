@@ -7,7 +7,7 @@ memory_limit: 100000
 # in MB
 
 subtasks: 2
-number_of_generated_testcases_per_subtask: [10, 10]
+number_of_generated_testcases_per_subtask: [21, 37]
 
 checker: default_checker.cpp
 checker_bin:
@@ -27,8 +27,8 @@ input_verifier_bin:
 other_solutions:
   - name:
     program: b.cpp
-    program_bin:
-    pass_subtasks: [1, 2]
+    program_bin: ststs
+    pass_subtasks: []
   - name:
     program: a.cpp
     program_bin:

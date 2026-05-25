@@ -13,13 +13,22 @@ gets package back to normal
 finally replaces testcases and generator
 runs full verify
 
+
+
+
 runs judge_model
 gets package to normal
+
+
+
 
 removes all progs and replaces them with workdir counterparts
 removes trusted brute-force
 full verify (only inver is wasted)
 gets to normal
+
+
+
 
 checks if all subtask combs in master progs are present in working progs
 

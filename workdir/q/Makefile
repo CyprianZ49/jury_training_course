@@ -7,8 +7,9 @@ A_FLAGS = $(DEFAULT_FLAGS)
 GEN_FLAGS = $(DEFAULT_FLAGS)
 IN_VER_FLAGS = $(DEFAULT_FLAGS)
 B_FLAGS = $(DEFAULT_FLAGS)
+A_FLAGS = $(DEFAULT_FLAGS)
 
-TARGETS = $(BIN_DIR)/default_checker $(BIN_DIR)/a $(BIN_DIR)/gen $(BIN_DIR)/in_ver $(BIN_DIR)/b
+TARGETS = $(BIN_DIR)/default_checker $(BIN_DIR)/a $(BIN_DIR)/gen $(BIN_DIR)/in_ver $(BIN_DIR)/ststs $(BIN_DIR)/a
 
 all: $(BIN_DIR) $(TARGETS)
 
@@ -27,8 +28,11 @@ $(BIN_DIR)/gen: gen.cpp
 $(BIN_DIR)/in_ver: in_ver.cpp
 	$(CXX) $(IN_VER_FLAGS) in_ver.cpp -o $(BIN_DIR)/in_ver
 
-$(BIN_DIR)/b: b.cpp
-	$(CXX) $(B_FLAGS) b.cpp -o $(BIN_DIR)/b
+$(BIN_DIR)/ststs: b.cpp
+	$(CXX) $(B_FLAGS) b.cpp -o $(BIN_DIR)/ststs
+
+$(BIN_DIR)/a: a.cpp
+	$(CXX) $(A_FLAGS) a.cpp -o $(BIN_DIR)/a
 
 clean:
 	rm -rf $(BIN_DIR)/*

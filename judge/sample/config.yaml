@@ -9,8 +9,8 @@ memory_limit: 100000
 subtasks: 2
 number_of_generated_testcases_per_subtask: [30, 30]
 
-checker: user_default_checker.cpp
-checker_bin: user_default_checker
+checker: default_checker.cpp
+checker_bin:
 
 model_solution: sample.cpp
 model_solution_bin:
@@ -20,15 +20,15 @@ trusted_brute_force_solution: nll.cpp
 generator: gen.cpp
 generator_bin:
 
-input_verifier: user_in_ver.cpp
-input_verifier_bin: user_in_ver
+input_verifier: inver.cpp
+input_verifier_bin:
 
 other_solutions:
-- name: no long longs
-  program: nll.cpp
-  program_bin:
-  pass_subtasks: [1]
-- name: bad
-  program: bad.cpp
-  program_bin:
+- name:
+  program: user_b.cpp
+  program_bin: user_ststs
   pass_subtasks: []
+- name:
+  program: user_a.cpp
+  program_bin:
+  pass_subtasks: [1, 2]

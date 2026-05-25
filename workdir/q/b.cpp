@@ -20,7 +20,7 @@ int main() {
     int a;
     cin >> a;
     int b = 0;
-    b += stall_random();
+    // b += stall_random();
     b++;
     if (a == 23234) {
         a += 1;

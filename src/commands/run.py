@@ -852,3 +852,46 @@ def generate_testcase_outputs_command():
                 sys.exit(1)
 
     print("Generated outputs for testcases using model_solution. This is somewhat ill advised.")
+
+
+def generate_testcase_from_program(prog_name, test_name, subtask):
+    test_dir="testcases"
+    in_dir_path = os.path.join(test_dir, str(subtask), "in")
+    os.makedirs(in_dir_path, exist_ok=True)
+
+    prog_name = os.path.splitext(os.path.basename(prog_name))[0]
+
+    bin_dir = os.path.join("tmp", "bin")
+    os.makedirs(bin_dir, exist_ok=True)
+
+    if not test_name.endswith(".in"):
+        test_name += ".in"
+
+    prog_path = os.path.join(bin_dir, prog_name)
+    test_path = os.path.join(in_dir_path, test_name)
+
+    try:
+        with open(test_path, 'w') as output_file:
+
+            result = subprocess.run(
+                [prog_path], stdout=output_file, check=True
+            )
+    except Exception as e:
+        print(f"Exception: {e}")
+        sys.exit(1)
+
+
+
+
+
+def generate_testcase_from_program_command():
+    util.ensure_workdir()
+    util.ensure_package()
+
+    parser = argparse.ArgumentParser(description="Helper command to make a testcase out of program output.")
+
+    parser.add_argument("-p", "--program", action="store_true",
+                help="Break execution immediately on the first failure.")
+
+    parser.add_argument("-nc", "--no_cleanup", action="store_true",
+                help="Don't clean up output files.")

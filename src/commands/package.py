@@ -70,7 +70,7 @@ def command_create_package():
     
     parser.add_argument("tag", type=str, help="Problem tag for the package being created.")
     
-    parser.add_argument("--subtasks", type=int, default=1, 
+    parser.add_argument("-s", "--subtasks", type=int, default=1, 
                         help="number of subtasks (default = 1)")
 
     args = parser.parse_args()

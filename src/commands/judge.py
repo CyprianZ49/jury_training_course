@@ -71,7 +71,16 @@ def judge_init(problem_tag, user_package_tag):
             master_path = item.resolve()
     
     if not master_path:
-        raise Exception(f"No problem with tag {problem_tag}.")
+        raise Exception(f"No problem with tag {problem_tag} in problems (no such master package).")
+
+    try:
+        subprocess.run(
+            ["make"], 
+            cwd=master_path, 
+            check=True
+        )
+    except Exception as e:
+        raise Exception(f"Makefile in master package failed with {e}.")
 
     workdir_path = os.path.join(get_project_path(), "workdir")
     user_path = None
@@ -114,9 +123,9 @@ def judge_init_command():
 
     try:
         judge_init(args.problem_tag, args.user_package_tag)
+        print("Init successful.")
     except Exception as e:
         print(f"Judge init failed: {e}")
-
 
 def judge_solution(cpus, raport = False, verbose = 0):
     restore_master()

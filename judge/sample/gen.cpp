@@ -8,9 +8,9 @@ int main(int argc, char* argv[]) {
     auto seed = chrono::high_resolution_clock::now().time_since_epoch().count() ^ random_device{}();
     mt19937_64 rng(seed);
 
-    if (argc != 2) {
-        return 1;
-    }
+    // if (argc != 2) {
+    //     return 1;
+    // }
 
     int s = atoi(argv[1]);
     if (s < 1 || s > 2) {

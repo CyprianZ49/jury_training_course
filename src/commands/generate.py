@@ -16,7 +16,7 @@ def generate(gen_path, subtask, test_id):
     
     try:
         with open(in_path, "w") as f:
-            subprocess.run([gen_path, str(subtask)], stdout=f, check=True)
+            subprocess.run([gen_path, str(subtask), str(test_id)], stdout=f, check=True)
         return True
     except Exception as e:
         return False

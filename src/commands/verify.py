@@ -238,7 +238,7 @@ def internal_verify_package(cpus, verbose = 1, skip_gen = False, raport = False)
             all_expected = False
 
     if raport:
-        run.generate_html_report(all_results, "verification_results")
+        run.generate_html_report(all_results, "verification_results", verbose)
 
     if verbose > 0:
         if all_expected:

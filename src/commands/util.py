@@ -2,7 +2,7 @@ import os
 import sys
 from pathlib import Path
 from ruamel.yaml import YAML
-
+import traceback
 
 def check_workdir():
     path = os.path.abspath(os.getcwd())
@@ -29,11 +29,15 @@ def ensure_package():
 
 
 def get_jail_path():
-    ensure_workdir()
+    # ensure_workdir() 
 
     path = Path(os.getcwd()).resolve()
-    while path.name != "workdir" and path.parent != path:
+    while (path.name != "workdir" and path.name != "judge") and path.parent != path:
         path = path.parent
+
+    if path.parent == path:
+        print("Get_jail_path is run outside workdir and judge. Cannot resolve - exiting.")
+        sys.exit(1)
 
     root_path = path.parent
 

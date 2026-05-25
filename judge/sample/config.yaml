@@ -1,0 +1,34 @@
+tag: sample
+name: a + b
+
+time_limit: 10
+# in s.... problem with units
+memory_limit: 100000
+# in MB..... problem with units
+
+subtasks: 2
+number_of_generated_testcases_per_subtask: [30, 30]
+
+checker: user_default_checker.cpp
+checker_bin: user_default_checker
+
+model_solution: sample.cpp
+model_solution_bin:
+
+trusted_brute_force_solution: nll.cpp
+
+generator: gen.cpp
+generator_bin:
+
+input_verifier: user_in_ver.cpp
+input_verifier_bin: user_in_ver
+
+other_solutions:
+- name: no long longs
+  program: nll.cpp
+  program_bin:
+  pass_subtasks: [1]
+- name: bad
+  program: bad.cpp
+  program_bin:
+  pass_subtasks: []

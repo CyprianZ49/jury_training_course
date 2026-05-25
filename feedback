@@ -1,11 +1,9 @@
-
-
-
-
 -inver we wzorcowej złe testy
 
--kolejność zarówno wewnętrznego jak i zewnętrzengo verify
-
--limit czasu jako fragment weryfikacji
 
 
+-raport sortowanie
+
+-LCA rozwiązanie działa tylko na posortowanym
+
+-rozwiązania wywal się na warunku...

@@ -33,6 +33,9 @@ verify_package = "commands.verify:command_internal_verify_package"
 generate_testcase_outputs = "commands.run:generate_testcase_outputs_command"
 
 judge_init = "commands.judge:judge_init_command"
+judge_solution = "commands.judge:judge_solution_command"
+judge_package = "commands.judge:judge_package_command"
+
 
 [tool.setuptools]
 package-dir = {"" = "src"}

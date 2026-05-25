@@ -3,7 +3,7 @@ name:
 
 time_limit: 1000
 # in s
-memory_limit: 1000000
+memory_limit: 100000
 # in MB
 
 subtasks: 2
@@ -15,7 +15,7 @@ checker_bin:
 model_solution: a.cpp
 model_solution_bin:
 
-trusted_brute_force_solution:
+trusted_brute_force_solution: a.cpp
 subtasks_for_model_solution_verification: []
 
 generator: gen.cpp

@@ -19,7 +19,7 @@ def create_package(tag, subtasks, verbose = 1):
 
     yaml = YAML()
     yaml.preserve_quotes = True
-    yaml.indent(mapping=2, sequence=4, offset=2)
+    # yaml.indent(mapping=2, sequence=4, offset=2)
 
     if os.path.exists(default_config_path):
         with open(default_config_path, 'r') as f:

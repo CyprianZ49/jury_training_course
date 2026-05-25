@@ -454,10 +454,10 @@ def command_run_tests():
 
     if args.raport:
         report_name = "results_" + args.program
-        generate_html_report(all_results, report_name)
+        generate_html_report(all_results, report_name, args.verbose)
 
 
-def generate_html_report(all_results, filename="results"):
+def generate_html_report(all_results, filename="results", verbose = 1):
     css_styles = """
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 30px; background-color: #f9f9f9; color: #333; }
@@ -528,7 +528,8 @@ def generate_html_report(all_results, filename="results"):
     with open(out_file, "w", encoding="utf-8") as f:
         f.write("\n".join(html_content))
     
-    print(f"Report successfully generated: {out_file}")
+    if verbose > 0:
+        print(f"Report successfully generated: {out_file}")
 
 
 def check_model(cpus, verbose = 1, no_cleanup = False, break_on_fail = False):

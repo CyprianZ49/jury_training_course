@@ -1,20 +1,5 @@
 ### External verification
 
-judge dirs look like packages but with 1 extra config with:
-path to working_package
-path to master_package
-(and master packages have an extra inver_counterexamples dir)
-
-judge_init
-loads master_package into judge
-prepares judge_config
-loads master_text into wworking_package
-
-judge_model
-copies working model_solution bin to judge
-adds it's entry into config as a program which passes all
-run_tests on this prog
-
 judge_full
 
 ensures memory limit and subtasks match
@@ -48,3 +33,8 @@ checks if all subtask combs in master progs are present in working progs
 4. fromOI
 5. random place to write this down but this is important - user needs to run make for problems (maybe auto setup somehow?)
 6. all programs in master package have names with unique prefix (or something) (maybe reserved name for model?)
+7. remember - init should copy text
+8. package + css + setup
+9. tests get number
+10. helper command to build testcases ()
+11. OI.h

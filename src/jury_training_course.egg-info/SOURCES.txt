@@ -4,6 +4,7 @@ src/__init__.py
 src/commands/__init__.py
 src/commands/generate.py
 src/commands/in_ver.py
+src/commands/judge.py
 src/commands/package.py
 src/commands/prepare_makefile.py
 src/commands/run.py

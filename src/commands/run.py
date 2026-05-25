@@ -667,7 +667,8 @@ def check_model(cpus, verbose = 1, no_cleanup = False, break_on_fail = False):
     trused_brute = config.get("trusted_brute_force_solution")
 
     if trused_brute == None:
-        print(f"Trusted brute-force solution not provided. Skipping.")
+        if verbose > 0:
+            print(f"Trusted brute-force solution not provided. Skipping.")
         return True
 
     target_prog = None

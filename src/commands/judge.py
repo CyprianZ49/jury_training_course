@@ -480,6 +480,9 @@ def judge_package(cpus, raport = False, verbose = 0):
             "or because your tests are too weak and some solutions pass more subtasks " \
             "than they should. For more info use higher verbosity.")
         return False
+    
+    if verbose > 0:
+        print("Testcases and generator are high quality.")
 
     os.chdir(save_dir)
 
@@ -549,72 +552,22 @@ def judge_package(cpus, raport = False, verbose = 0):
 
     internal_config["other_solutions"] = other_solutions    
 
+    internal_config["trusted_brute_force_solution"] = None
+
     with open(config_path, "w") as f:
         yaml.dump(internal_config, f)
 
     # running other solutions
 
-    all_expected = True
-    all_results = []
+    ver_status = verfify.internal_verify_package(cpus, verbose - 1, False, raport)
 
-    for p in programs:
-
-        expected_program = True
-        if verbose > 1:
-            print(f"Running program {p}.")
-
-        for s in subtasks:
-            
-            if verbose > 1:
-                print(f"Subtask {s}.")
-
-            try:
-                accepted_hand, expected, results = run.run_tests(s, cpus, "testcases", p, verbose - 1, False, True)
-                all_results.append((p, s, "testcases", results))
-            except Exception as e:
-                if verbose > 1:
-                    print(f"Running tests for program {p} on subtask {s} raised an exception:")
-                    print(e)
-                    print("This is considered a failure.")
-                expected_program = False
-                break
-
-            gen_test_path = os.path.join("tmp", "gen")
-            try:
-                accepted_gen, expected, results = run.run_tests(s, cpus, gen_test_path, p, verbose - 1, False, True)
-                all_results.append((p, s, "generated", results))
-            except Exception as e:
-                if verbose > 1:
-                    print(f"Running tests for program {p} on subtask {s} raised an exception:")
-                    print(e)
-                    print("This is considered a failure.")
-                expected_program = False
-                break
-
-            accepted_subtask = accepted_hand and accepted_gen
-
-            if accepted_subtask != expected:
-                expected_program = False
-        
-        if expected_program:
-            if verbose > 1:
-                print(f"Program {p} behaviour matches config.")
-        else:
-            if verbose > 1:
-                print(f"Program {p} behaviour doesn't match config.")
-            all_expected = False
-
-    if raport:
-        run.generate_html_report(all_results, "verification_results", verbose)
-
-    if verbose > 0:
-        if all_expected:
-            print("All other_solutions behave according to config.")
-        else:
+    if not ver_status:
+        if verbose > 0:
             print("Some other_solutions do not behave according to config.")
-            
-    if not all_expected:
         return False
+    
+    if verbose > 0:
+        print("All other_solutions behave according to config.")
 
     # end
 
@@ -633,7 +586,7 @@ def judge_package(cpus, raport = False, verbose = 0):
     if missing_combs:
         if verbose > 0:
             print("List of subtask combinations for which a natural solution " \
-            "exists (as seen in master) that are not represented in user package.")
+            "exists (as seen in master) that are not represented in user package:")
             print(missing_combs)
             print("A quality package should contain an other_solution for every " \
             "reasonable subtask combination.")

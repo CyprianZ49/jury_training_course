@@ -16,10 +16,10 @@ def create_package(tag, subtasks, verbose = 1):
     self_path = os.path.dirname(os.path.realpath(__file__))
     default_config_path = os.path.join(self_path, "default_config.yaml")
     default_checker_path = os.path.join(self_path, "default_checker.cpp")
+    oih_path = os.path.join(self_path, "oi.h")
 
     yaml = YAML()
     yaml.preserve_quotes = True
-    # yaml.indent(mapping=2, sequence=4, offset=2)
 
     if os.path.exists(default_config_path):
         with open(default_config_path, 'r') as f:
@@ -42,16 +42,23 @@ def create_package(tag, subtasks, verbose = 1):
         shutil.copy(default_checker_path, package_checker_path)
     except Exception as e:
         raise Exception(f"Failed to copy default checker into the package.")
+    
+    package_oih_path = os.path.join(tag, "oi.h")
+    try:
+        if not os.path.exists(oih_path):
+            raise Exception("")
+        
+        shutil.copy(oih_path, package_oih_path)
+    except Exception as e:
+        raise Exception(f"Failed to copy oi.h into the package.")
 
     testcases_path = os.path.join(tag, "testcases")
 
     for i in range(1, subtasks + 1):
         subtask_path = os.path.join(testcases_path, str(i))
-        
+    
         os.makedirs(os.path.join(subtask_path, "in"), exist_ok=True)
-
-        if type == "output":
-            os.makedirs(os.path.join(subtask_path, "out"), exist_ok=True)
+        os.makedirs(os.path.join(subtask_path, "out"), exist_ok=True)
 
     os.makedirs(os.path.join(tag, "tmp"))
 

@@ -14,6 +14,8 @@ import commands.in_ver as inver
 import commands.run as run
 import commands.verify as verfify
 
+from commands.util import print_red, print_yellow, print_green
+
 
 def get_project_path():
     current_dir = Path(__file__).resolve().parent
@@ -110,8 +112,15 @@ def judge_init(problem_tag, user_package_tag):
         restore_master()
     except Exception as e:
         raise Exception(f"Problem with init: {e}")
-    
 
+    try:
+        for file_path in master_path.glob('*'):
+            if file_path.is_file() and file_path.suffix.lower() in ['.md', '.pdf']:
+                shutil.copy2(file_path, user_path)
+    except Exception as e:
+        raise Exception(f"Problem with copying problem text: {e}")
+        
+    
 def judge_init_command():
     parser = argparse.ArgumentParser(description="Prepares user package to be judged.")
     
@@ -221,7 +230,7 @@ def judge_solution(cpus, raport = False, verbose = 0):
         
         if not success:
             if verbose > 0:
-                print(f"Model solution failed on subtask {s} testcases.")
+                print_red(f"Model solution failed on subtask {s} testcases.")
             all_success = False
         else:
             if verbose > 1:
@@ -241,7 +250,7 @@ def judge_solution(cpus, raport = False, verbose = 0):
 
         if not success:
             if verbose > 0:
-                print(f"Model solution failed on subtask {s} {gen_test_path}.")
+                print_red(f"Model solution failed on subtask {s} {gen_test_path}.")
             all_success = False
         else:
             if verbose > 1:
@@ -275,9 +284,9 @@ def judge_solution_command():
     try:
         success = judge_solution(args.cpus, args.raport, args.verbose)
         if success:
-            print("Your model solution passes the master package tests.")
+            print_green("Your model solution passes the master package tests.")
         else:
-            print("Your model solution fails the master package tests.")
+            print_red("Your model solution fails the master package tests.")
 
     except Exception as e:
         print(f"Judge_solution failed: {e}")
@@ -329,14 +338,14 @@ def judge_package(cpus, raport = False, verbose = 0):
 
     if user_memory != master_memory:
         if verbose > 0:
-            print("User memory limit is different from the one in the task.")
+            print_red("User memory limit is different from the one in the task.")
         return False
 
     user_trusted_brute = user_config.get("trusted_brute_force_solution")
 
     if user_trusted_brute is None:
         if verbose > 0:
-            print("A quality package should have a trusted brute force solution.")
+            print_red("A quality package should have a trusted brute force solution.")
         return False
     
     # checker and inver
@@ -351,11 +360,11 @@ def judge_package(cpus, raport = False, verbose = 0):
 
     if not user_checker:
         if verbose > 0:
-            print("User package config has no checker.")
+            print_red("User package config has no checker.")
         return False
     if not user_inver:
         if verbose > 0:
-            print("User package config has no input_verifier.")
+            print_red("User package config has no input_verifier.")
         return False
 
     user_checker_bin = user_config.get("checker_bin")
@@ -397,7 +406,7 @@ def judge_package(cpus, raport = False, verbose = 0):
     
     if not ver_status:
         if verbose > 0:
-            print("Checker or input doesn't work for the master package.")
+            print_red("Checker or input doesn't work for the master package.")
         return False
     
     for s in subtasks:
@@ -405,14 +414,14 @@ def judge_package(cpus, raport = False, verbose = 0):
             _, failed = inver.verify_tests(subtask=s, cpus=cpus, test_dir="inver_tests", verbose=verbose - 1, break_on_fail=False)
         except Exception as e:
             if verbose > 0:
-                print(f"Input verifier tests raised an exception: {e}")
+                print_red(f"Input verifier tests raised an exception: {e}")
             return False
         
         inver_tests_path = os.path.join("inver_tests", str(s), "in")
         test_count = sum(1 for x in Path(inver_tests_path).iterdir() if x.is_file())
         if len(failed) != test_count:
             if verbose > 0:
-                print(f"Your input verifier passes a test for subtask {s} which isn't a valid test incorrect.")
+                print_red(f"Your input verifier passes a test for subtask {s} which isn't a valid test incorrect.")
             return False
 
     if verbose > 0:
@@ -435,7 +444,7 @@ def judge_package(cpus, raport = False, verbose = 0):
 
     if not user_generator:
         if verbose > 0:
-            print("User package config has no generator.")
+            print_red("User package config has no generator.")
         return False
 
     user_generator_bin = user_config.get("generator_bin")
@@ -484,8 +493,8 @@ def judge_package(cpus, raport = False, verbose = 0):
 
     if not ver_status:
         if verbose > 0:
-            print("Testcases or generator fail when run on the master package. " \
-            "This can be either because of master input verifier finding mistakes " \
+            print_red("Testcases or generator fail when run on the master package.")
+            print("This can be either because of master input verifier finding mistakes " \
             "or because your tests are too weak and some solutions pass more subtasks " \
             "than they should. For more info use higher verbosity.")
         return False
@@ -501,12 +510,12 @@ def judge_package(cpus, raport = False, verbose = 0):
         success = judge_solution(cpus, raport, verbose)
     except Exception as e:
         if verbose > 0:
-            print(f"Judge_solution failed: {e}")
+            print_red(f"Judge_solution failed: {e}")
         return False
 
     if not success:
         if verbose > 0:
-            print("Your model solution fails the master package tests.")
+            print_red("Your model solution fails the master package tests.")
         return False
     
     if verbose > 0:
@@ -572,7 +581,7 @@ def judge_package(cpus, raport = False, verbose = 0):
 
     if not ver_status:
         if verbose > 0:
-            print("Some other_solutions do not behave according to config.")
+            print_red("Some other_solutions do not behave according to config.")
         return False
     
     if verbose > 0:
@@ -596,7 +605,7 @@ def judge_package(cpus, raport = False, verbose = 0):
         if verbose > 0:
             print("List of subtask combinations for which a natural solution " \
             "exists (as seen in master) that are not represented in user package:")
-            print(missing_combs)
+            print_red(missing_combs)
             print("A quality package should contain an other_solution for every " \
             "reasonable subtask combination.")
         return False
@@ -636,9 +645,9 @@ def judge_package_command():
     try:
         success = judge_package(args.cpus, args.raport, args.verbose)
         if success:
-            print("Your package is high quality.")
+            print_green("Your package is high quality.")
         else:
-            print("Your package still needs some work.")
+            print_red("Your package still needs some work.")
 
     except Exception as e:
         print(f"Judge_package failed: {e}")

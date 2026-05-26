@@ -8,6 +8,8 @@ import subprocess
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
 
+from commands.util import print_red, print_yellow, print_green
+
 
 def verify(in_ver_path, subtask, test_path, test_name):
     os.makedirs(test_path, exist_ok=True)
@@ -53,8 +55,7 @@ def verify_tests(subtask, cpus, test_dir, verbose = 1, break_on_fail = False):
 
     failed_tests = []
     with ProcessPoolExecutor(max_workers=cpus) as executor:
-        # futures = [executor.submit(verify, *task) for task in tasks]
-        
+
         future_to_task = {executor.submit(verify, *task): task for task in tasks}
         futures_iterator = as_completed(future_to_task) if break_on_fail else future_to_task.keys()
 
@@ -62,7 +63,6 @@ def verify_tests(subtask, cpus, test_dir, verbose = 1, break_on_fail = False):
             task = future_to_task[future]
             test_name = task[3]
 
-        # for i, future in enumerate(futures, 0):
             status, stdout, = future.result()
 
             if status != 0:
@@ -90,7 +90,7 @@ def verify_tests(subtask, cpus, test_dir, verbose = 1, break_on_fail = False):
         if len(failed_tests) == 0:
             print(f"All {len(tests)} tests for subtask {subtask} from {test_dir} have been verified.")
         else:
-            print(f"Tests for subtask {subtask} from {test_dir} didn't pass the input verifier.")
+            print_yellow(f"Tests for subtask {subtask} from {test_dir} didn't pass the input verifier.")
             print(f"Failed tests:")
             for test in failed_tests[:5]:
                 print(test)
@@ -177,9 +177,9 @@ def command_verify_tests():
             all_passed = False
 
     if all_passed:
-        print("All selected tests passed.")
+        print_green("All selected tests passed.")
     else:
-        print("Some tests didn't pass.")
+        print_red("Some tests didn't pass.")
         if args.verbose == 0:
             print("For more info use higher verbosity.")
 

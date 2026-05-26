@@ -7,6 +7,8 @@ from ruamel.yaml import YAML
 import subprocess
 from concurrent.futures import ProcessPoolExecutor
 
+from commands.util import print_red, print_yellow, print_green
+
 
 def generate(gen_path, subtask, test_id):
     test_path = os.path.join("tmp", "gen")

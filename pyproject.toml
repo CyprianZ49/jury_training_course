@@ -31,6 +31,7 @@ check_model = "commands.run:check_model_command"
 verify_package = "commands.verify:command_internal_verify_package"
 
 generate_testcase_outputs = "commands.run:generate_testcase_outputs_command"
+make_testcase = "commands.run:generate_testcase_from_program_command"
 
 judge_init = "commands.judge:judge_init_command"
 judge_solution = "commands.judge:judge_solution_command"

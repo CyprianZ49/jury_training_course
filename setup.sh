@@ -17,12 +17,13 @@ source "$VENV_DIR/bin/activate"
 pip install --upgrade pip --quiet
 
 if pip install -e .; then
+    echo ""
+    echo "This project uses sio2jail which might not work without running:"
+    echo "sysctl -w kernel.perf_event_paranoid=-1"
 
     echo ""
-    echo "sudo sysctl -w kernel.perf_event_paranoid=-1"
-
-    echo ""
-    echo "Run 'source $VENV_DIR/bin/activate' to start working."
+    echo "To activate entry points run:"
+    echo "source $VENV_DIR/bin/activate"
 else
     echo "Installation failed."
     exit 1

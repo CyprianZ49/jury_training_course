@@ -10,6 +10,8 @@ from pathlib import Path
 import signal
 import html
 
+from commands.util import print_red, print_yellow, print_green
+
 
 class Result:
     pass
@@ -58,7 +60,7 @@ def check(checker_path, in_dir_path, out_dir_path, test_name, model_solution_pat
 
 def run(jail_path, in_dir_path, out_dir_path, test_name, program_bin_path, time_limit, 
         memory_limit, checker_path, model_solution_path, do_cleanup, use_default_out = False):
-    
+
     test_input = os.path.join(in_dir_path, f"{test_name}.in")
     prog_output = os.path.join(out_dir_path, f"{test_name}.prog_out")
     jail_msg = os.path.join(out_dir_path, f"{test_name}.msg")
@@ -74,7 +76,6 @@ def run(jail_path, in_dir_path, out_dir_path, test_name, program_bin_path, time_
     if not os.path.exists(jail_path):
         return -1, f"{jail_path} not found."
 
-    # based on Sinol-make by Tomasz Grześkiewicz
     command = (f'{jail_path}'
         ' --mount-namespace off'
         ' --pid-namespace off'
@@ -210,10 +211,12 @@ def run_tests(subtask, cpus, test_dir, prog, verbose = 1, no_cleanup = False, br
     time_limit = config.get("time_limit")
     if not time_limit:
         raise Exception("No time limit set!")
+    time_limit *= 1000
 
     memory_limit = config.get("memory_limit")
     if not memory_limit:
         raise Exception("No memory limit set!")
+    memory_limit *= 1024
 
     # prog
     target_prog = None
@@ -293,7 +296,7 @@ def run_tests(subtask, cpus, test_dir, prog, verbose = 1, no_cleanup = False, br
                 print(f"Passed test: {test_name}. Subtask: {subtask} from {test_dir}.")
 
     if verbose > 0:
-        print(f"Ran {len(test_results)} tests for subtask {subtask} from {test_dir}.")
+        print_yellow(f"Ran {len(test_results)} tests for subtask {subtask} from {test_dir}.")
         if failed_tests == 0:
             print(f"All passed.")
         else:
@@ -438,17 +441,10 @@ def command_run_tests():
             if accepted_subtask != expected:
                 all_expected = False
 
-            # if args.break_on_fail and not all_expected:
-            #     break
-
-        # if args.break_on_fail and not all_expected:
-        #     break
-
-
     if all_expected:
-        print("For each selected program and subtask the results matches the config.")
+        print_green("For each selected program and subtask the results matches the config.")
     else:
-        print("Some results do not match the config.")
+        print_red("Some results do not match the config.")
         if args.verbose == 0:
             print("For more info use higher verbosity.")
 
@@ -458,36 +454,73 @@ def command_run_tests():
 
 
 def generate_html_report(all_results, filename="results", verbose = 1):
-    css_styles = """
+    css_style = """
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 30px; background-color: #f9f9f9; color: #333; }
-        .table-container { margin-bottom: 40px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        h3 { margin-top: 0; color: #444; border-bottom: 2px solid #eaeaea; padding-bottom: 8px; }
+        body { 
+            font-family: Arial;
+            margin: 10px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+
+        .container {
+            margin-bottom: 40px;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 2px rgba(0,0,0,0.05);
+        }
+
+        .header {
+            margin-top: 0;
+            color: #444;
+            border-bottom: 2px solid #eaeaea;
+            padding-bottom: 8px;
+        }
         
-        .results-grid {
+        .results_grid {
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
             margin-top: 8px;
         }
         
-        .test-card {
+        .result_card {
             border: 1px solid #ddd;
             border-radius: 4px;
-            padding: 6px;
+            padding: 5px;
             text-align: center;
             min-width: 80px;
             background: #fdfdfd;
         }
         
-        .test-name { font-weight: 600; font-size: 13px; margin-bottom: 3px; display: block; }
-        .status-badge { display: block; font-weight: bold; padding: 4px 6px; border-radius: 4px; color: white; margin-bottom: 0px; font-size: 12px; }
+        .test_name {
+            font-weight: bold;
+            font-size: 13px;
+            margin-bottom: 3px;
+            display: block;
+        }
+        
+        .status_badge {
+            font-weight: bold;
+            font-size: 12px;
+            margin-bottom: 0px;
+            padding: 4px 6px;
+            border-radius: 4px;
+            color: white;
+            display: block;
+        }
+        
         .acc { background-color: #2e7d32; }
-        .wa  { background-color: #d32f2f; }
+        .wa { background-color: #d32f2f; }
         .tle { background-color: #fbc02d; color: #333; }
         .mle { background-color: #ef6c00; }
         .re { background-color: #0288d1; }
-        .time-label { font-size: 11px; color: #666; font-family: monospace; }
+
+        .time_label {
+            font-family: monospace;
+            font-size: 11px;
+        }
     </style>
     """
 
@@ -495,41 +528,49 @@ def generate_html_report(all_results, filename="results", verbose = 1):
         "<!DOCTYPE html>",
         "<html>",
         "<head>",
-        '<meta charset="utf-8">',
+        "<meta charset='utf-8'>",
         "<title>Report</title>",
-        css_styles,
+        css_style,
         "</head>",
         "<body>",
-        "<h1>Report</h1>"
+        f"<h1 style='margin-left: 30px;'>{filename}</h1>"
     ]
 
-    for p, s, directory, results in all_results:
-        sorted_tests = sorted(results.keys())
-        
-        html_content.append('<div class="table-container">')
-        html_content.append(f'<h3>Program: <strong>{html.escape(str(p))}</strong> | Subtask: <strong>{html.escape(str(s))}</strong> | Directory: <strong>{html.escape(str(directory))}</strong></h3>')
+    def sort_helper(key):
+        key_str = str(key)
+        if key_str.isdigit():
+            return (1, int(key_str))
+        return (0, key_str)
 
-        html_content.append('<div class="results-grid">')
+    for p, s, directory, results in all_results:
+        sorted_tests = sorted(results.keys(), key=sort_helper)
+        
+        html_content.append("<div class='container'>")
+        html_content.append(f"<div class=header>Program: <strong>{html.escape(str(p))}</strong> | " \
+                            f"Subtask: <strong>{html.escape(str(s))}</strong> | " \
+                            f"Directory: <strong>{html.escape(str(directory))}</strong></div>")
+        html_content.append("<div class='results_grid'>")
         
         for test_name in sorted_tests:
             result = results[test_name]            
-            html_content.append('<div class="test-card">')
-            html_content.append(f'<span class="test-name">{html.escape(str(test_name))}</span>')
-            html_content.append(f'<span class="status-badge {result.status.lower()}">{html.escape(result.status)}</span>')
-            html_content.append(f'<span class="time-label">{result.time}s</span>')
-            html_content.append('</div>')
+            html_content.append("<div class='result_card'>")
+            html_content.append(f"<span class='test_name'>{html.escape(str(test_name))}</span>")
+            html_content.append(f"<span class='status_badge {result.status.lower()}'>{html.escape(result.status)}</span>")
+            html_content.append(f"<span class='time_label'>{result.time}s</span>")
+            html_content.append("</div>")
             
-        html_content.append('</div>')
-        html_content.append('</div>')
+        html_content.append("</div>")
+        html_content.append("</div>")
 
-    html_content.extend(["</body>", "</html>"])
+    html_content.append("</body>")
+    html_content.append("</html>")
 
-    out_file = filename + ".html"
-    with open(out_file, "w", encoding="utf-8") as f:
+    report_file = filename + ".html"
+    with open(report_file, "w", encoding="utf-8") as f:
         f.write("\n".join(html_content))
     
     if verbose > 0:
-        print(f"Report successfully generated: {out_file}")
+        print(f"Report successfully generated: {report_file}")
 
 
 def check_model(cpus, verbose = 1, no_cleanup = False, break_on_fail = False):
@@ -643,7 +684,7 @@ def check_model(cpus, verbose = 1, no_cleanup = False, break_on_fail = False):
                     print(f"Passed test: {test_name}. Subtask: {subtask} from {test_dir}.")
 
         if verbose > 0:
-            print(f"Ran {len(test_results)} tests for subtask {subtask} from {test_dir}.")
+            print_yellow(f"Ran {len(test_results)} tests for subtask {subtask} from {test_dir}.")
             if failed_tests == 0:
                 print(f"All passed.")
             else:
@@ -668,7 +709,7 @@ def check_model(cpus, verbose = 1, no_cleanup = False, break_on_fail = False):
 
     if trused_brute == None:
         if verbose > 0:
-            print(f"Trusted brute-force solution not provided. Skipping.")
+            print_yellow(f"Trusted brute-force solution not provided. Skipping.")
         return True
 
     target_prog = None
@@ -748,7 +789,8 @@ def check_model(cpus, verbose = 1, no_cleanup = False, break_on_fail = False):
                     print(f"Passed test: {test_name}. Subtask: {subtask} from {test_dir}.")
 
         if verbose > 0:
-            print(f"Ran {len(test_results)} tests for subtask {subtask} from {test_dir} against {trused_brute} as solution.")
+            print_yellow(f"Ran {len(test_results)} tests for subtask {subtask} from {test_dir} " \
+                         f"against {trused_brute} as solution.")
             if failed_tests == 0:
                 print(f"All passed.")
             else:
@@ -762,7 +804,7 @@ def check_model(cpus, verbose = 1, no_cleanup = False, break_on_fail = False):
 
     if any_fails:
         if verbose > 0:
-            print(f"Model solution failed against {trused_brute}. Check for bugs in both.")
+            print_red(f"Model solution failed against {trused_brute}. Check for bugs in both.")
         return False
     
     return True
@@ -796,7 +838,7 @@ def check_model_command():
         print(e)
     
     if status:
-        print("Model solution passes verification.")
+        print_green("Model solution passes verification.")
 
 
 def generate_testcase_outputs_command():
@@ -872,16 +914,11 @@ def generate_testcase_from_program(prog_name, test_name, subtask):
 
     try:
         with open(test_path, 'w') as output_file:
-
             result = subprocess.run(
                 [prog_path], stdout=output_file, check=True
             )
     except Exception as e:
-        print(f"Exception: {e}")
-        sys.exit(1)
-
-
-
+        raise Exception(f"{e}")
 
 
 def generate_testcase_from_program_command():
@@ -890,8 +927,19 @@ def generate_testcase_from_program_command():
 
     parser = argparse.ArgumentParser(description="Helper command to make a testcase out of program output.")
 
-    parser.add_argument("-p", "--program", action="store_true",
-                help="Break execution immediately on the first failure.")
+    parser.add_argument("-s", "--subtask", required=True,
+                        help="Subtask number.")
+    
+    parser.add_argument("-p", "--program", required=True,
+                        help="Program which writes testcase.")
+    
+    parser.add_argument("-n", "--name", required=True,
+                        help="Name of the testcase.")
+    
+    args = parser.parse_args()
 
-    parser.add_argument("-nc", "--no_cleanup", action="store_true",
-                help="Don't clean up output files.")
+    try:
+        generate_testcase_from_program(args.program, args.name, args.subtask)
+        print(f"Testcase {args.name} for subtask {args.subtask} generated.")
+    except Exception as e:
+        print(f"Failed: {e}")

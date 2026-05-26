@@ -13,6 +13,8 @@ import commands.generate as gen
 import commands.in_ver as inver
 import commands.run as run
 
+from commands.util import print_red, print_yellow, print_green
+
 
 # verifications are always break_on_fail = True
 def internal_verify_package(cpus, verbose = 1, skip_gen = False, raport = False):
@@ -26,35 +28,35 @@ def internal_verify_package(cpus, verbose = 1, skip_gen = False, raport = False)
 
     if not time_limit:
         if verbose > 0:
-            print("Verification failed: time limit not provided.")
+            print_red("Verification failed: time limit not provided.")
         return False
         
     memory_limit = config.get("memory_limit")
 
     if not memory_limit:
         if verbose > 0:
-            print("Verification failed: memory limit not provided.")
+            print_red("Verification failed: memory limit not provided.")
         return False
 
     subtasks = config.get("subtasks")
 
     if not subtasks:
         if verbose > 0:
-            print("Verification failed: subtasks not provided.")
+            print_red("Verification failed: subtasks not provided.")
         return False
 
     gen_test_number = config.get("number_of_generated_testcases_per_subtask")
 
     if not gen_test_number or len(gen_test_number) != subtasks:
         if verbose > 0:
-            print("Verification failed: number of tests to generate for each subtask not provided.")
+            print_red("Verification failed: number of tests to generate for each subtask not provided.")
         return False
 
     checker = config.get("checker")
 
     if not checker:
         if verbose > 0:
-            print("Verification failed: checker not provided.")
+            print_red("Verification failed: checker not provided.")
         return False
     
     checker_bin = config.get("checker_bin")
@@ -66,7 +68,7 @@ def internal_verify_package(cpus, verbose = 1, skip_gen = False, raport = False)
 
     if not model_solution:
         if verbose > 0:
-            print("Verification failed: model_solution not provided.")
+            print_red("Verification failed: model_solution not provided.")
         return False
     
     model_solution_bin = config.get("model_solution_bin")
@@ -77,13 +79,13 @@ def internal_verify_package(cpus, verbose = 1, skip_gen = False, raport = False)
 
     if not trusted_brute:
         if verbose > 0:
-            print("Verification warning: trusted_brute_force_solution not selected.")
+            print_yellow("Verification warning: trusted_brute_force_solution not selected.")
 
     generator = config.get("generator")
 
     if not generator:
         if verbose > 0:
-            print("Verification failed: generator not provided.")
+            print_red("Verification failed: generator not provided.")
         return False
     
     generator_bin = config.get("generator_bin")
@@ -94,7 +96,7 @@ def internal_verify_package(cpus, verbose = 1, skip_gen = False, raport = False)
 
     if not input_verifier:
         if verbose > 0:
-            print("Verification failed: input_verifier not provided.")
+            print_red("Verification failed: input_verifier not provided.")
         return False
     
     input_verifier_bin = config.get("input_verifier_bin")
@@ -140,7 +142,7 @@ def internal_verify_package(cpus, verbose = 1, skip_gen = False, raport = False)
                         raise Exception(f"Tests for subtask {s} from {t_dir} didn't pass the input verifier.")
                 except Exception as e:
                     if verbose > 0:
-                        print(f"Verification failed: input verification didn't pass.")
+                        print_red(f"Verification failed: input verification didn't pass.")
                         print(e)
                     return False
 
@@ -163,7 +165,7 @@ def internal_verify_package(cpus, verbose = 1, skip_gen = False, raport = False)
     if verbose > 0:
         print("Running all provided programs on all tests and checking if correct subtasks pass.")
 
-    #########
+    #
 
     programs = []
     for entry in config.get("other_solutions", []):
@@ -231,10 +233,10 @@ def internal_verify_package(cpus, verbose = 1, skip_gen = False, raport = False)
         
         if expected_program:
             if verbose > 0:
-                print(f"Program {p} behaviour matches config.")
+                print_green(f"Program {p} behaviour matches config.")
         else:
             if verbose > 0:
-                print(f"Program {p} behaviour doesn't match config.")
+                print_red(f"Program {p} behaviour doesn't match config.")
             all_expected = False
 
     if raport:
@@ -242,9 +244,9 @@ def internal_verify_package(cpus, verbose = 1, skip_gen = False, raport = False)
 
     if verbose > 0:
         if all_expected:
-            print("All programs behave according to config.")
+            print_green("All programs behave according to config.")
         else:
-            print("Some programs do not behave according to config.")
+            print_red("Some programs do not behave according to config.")
             
     if not all_expected:
         return False
@@ -278,6 +280,6 @@ def command_internal_verify_package():
     res = internal_verify_package(args.cpus, args.verbose, args.skip_gen, args.raport)
 
     if res:
-        print("This package is internally consistent.")
+        print_green("This package is internally consistent.")
     else:
-        print("This package has internal problems.")
+        print_red("This package has internal problems.")

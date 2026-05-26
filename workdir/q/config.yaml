@@ -1,9 +1,9 @@
 tag: q
 name:
 
-time_limit: 1000
+time_limit: 1.5
 # in s
-memory_limit: 100000
+memory_limit: 256
 # in MB
 
 subtasks: 2
@@ -33,3 +33,7 @@ other_solutions:
     program: a.cpp
     program_bin:
     pass_subtasks: [1, 2]
+  - name:
+    program: c.cpp
+    program_bin:
+    pass_subtasks: []

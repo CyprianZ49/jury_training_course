@@ -29,7 +29,6 @@ def ensure_package():
 
 
 def get_jail_path():
-    # ensure_workdir() 
 
     path = Path(os.getcwd()).resolve()
     while (path.name != "workdir" and path.name != "judge") and path.parent != path:
@@ -44,3 +43,15 @@ def get_jail_path():
     jail_path = os.path.join(root_path, "bin", "sio2jail")
 
     return jail_path
+
+
+def print_green(text):
+    print(f"\033[92m{text}\033[00m")
+    
+
+def print_red(text):
+    print(f"\033[91m{text}\033[00m")
+
+
+def print_yellow(text):
+    print(f"\033[93m{text}\033[00m")

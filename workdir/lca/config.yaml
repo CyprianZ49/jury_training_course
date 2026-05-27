@@ -1,0 +1,30 @@
+tag: lca
+name: lowest common ancestor
+
+time_limit: 1
+# in s
+memory_limit: 512
+# in MB
+
+subtasks: 4
+number_of_generated_testcases_per_subtask: [20, 20, 20, 20]
+
+checker: default_checker.cpp
+checker_bin:
+
+model_solution: lca.cpp
+model_solution_bin:
+
+trusted_brute_force_solution: slow1.cpp
+
+generator: gen.cpp
+generator_bin:
+
+input_verifier: inver.cpp
+input_verifier_bin:
+
+other_solutions:
+- name: slow solution using depth
+  program: slow1.cpp
+  program_bin:
+  pass_subtasks: [1]

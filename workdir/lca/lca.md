@@ -22,16 +22,16 @@ checklist:
 binary-lifting anc - DONE
 bin-lift jump - DONE
 euler-tour trick - DONE
-hld - 
+hld - DONE
 
-sqr jump
-precalc all pairs (dp with mem)
+sqr jump  - DONE
+precalc all pairs (dp with mem) - DONE
 
-brutal depth
+brutal depth - DONE
 brutal mark
 
 break when max-test
-break when non-sorted test
 
+break when non-sorted test
 mark but no_cleanup
 break specifically on anc or =

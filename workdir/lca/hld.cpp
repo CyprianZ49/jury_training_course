@@ -7,7 +7,6 @@
 using namespace std;
 
 const int maxN = 200009;
-const int log2maxN = 18;
 
 int root = 0;
 vector <int> tree[maxN];
@@ -50,7 +49,6 @@ void dfs2(int v, int p, int id) {
 
 int lca(int v, int u) {
     while (path_id[v] != path_id[u]) {
-        cout << "iuwfguisd: " << v << " " << u << '\n';
         if (depth[path_end[path_id[v]]] > depth[path_end[path_id[u]]]) {
             v = path_end[path_id[v]];
         }
@@ -78,7 +76,8 @@ int main() {
     depth[root] = -1;
     dfs(root, root);
 
-    path_end[0] = root;
+    depth[0] = -1;
+    path_end[0] = 0;
     dfs2(root, root, 0);
 
     for (int t = 0; t < q; t++) {

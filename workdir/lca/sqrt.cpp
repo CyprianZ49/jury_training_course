@@ -15,19 +15,12 @@ int order_pre[maxN];
 int order_post[maxN];
 int order = 0;
 
-int jump[maxN];
+int sqrt_jump[maxN];
 int parent[maxN];
 
 void dfs(int v, int p) {
     parent[v] = p;
     depth[v] = depth[p] + 1;
-
-    if (depth[jump[jump[p]]] - depth[jump[p]] == depth[jump[p]] - depth[p]) {
-        jump[v] = jump[jump[p]];
-    }
-    else {
-        jump[v]  = p;
-    }
 
     order_pre[v] = order++;
 
@@ -50,8 +43,8 @@ int lca(int v, int u) {
     }
 
     while (!is_anc(parent[v], u)) {
-        if (!is_anc(jump[v], u)) {
-            v = jump[v];
+        if (!is_anc(sqrt_jump[v], u)) {
+            v = sqrt_jump[v];
         }
         else {
             v = parent[v];
@@ -74,8 +67,18 @@ int main() {
     }
 
     depth[root] = -1;
-    jump[root] = root;
     dfs(root, root);
+
+    int sqrt_n = 1;
+    while (sqrt_n * sqrt_n < n) sqrt_n++;
+
+    for (int i = 1; i <= n; i++) {
+        int v = i;
+        for (int c = 0; c < sqrt_n; c++) {
+            v = parent[v];
+        }
+        sqrt_jump[i] = v;
+    }
 
     for (int t = 0; t < q; t++) {
         cin >> a >> b;

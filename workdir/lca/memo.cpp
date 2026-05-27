@@ -4,61 +4,36 @@
 
 using namespace std;
 
-const int maxN = 200009;
+const int maxN = 20009;
 
 int root = 0;
 vector <int> tree[maxN];
 
 int depth[maxN];
-
-int order_pre[maxN];
-int order_post[maxN];
-int order = 0;
-
-int jump[maxN];
 int parent[maxN];
+
+int lca_memo[maxN][maxN];
 
 void dfs(int v, int p) {
     parent[v] = p;
     depth[v] = depth[p] + 1;
-
-    if (depth[jump[jump[p]]] - depth[jump[p]] == depth[jump[p]] - depth[p]) {
-        jump[v] = jump[jump[p]];
-    }
-    else {
-        jump[v]  = p;
-    }
-
-    order_pre[v] = order++;
 
     for (int i = 0; i < (int)tree[v].size(); i++) {
         if (tree[v][i] != p) {
             dfs(tree[v][i], v);
         }
     }
-
-    order_post[v] = order++;
-}
-
-bool is_anc(int v, int u) {
-    return (order_pre[v] <= order_pre[u] && order_post[v] >= order_post[u]);
 }
 
 int lca(int v, int u) {
-    if (is_anc(v, u)) {
+    if (v == u) {
         return v;
     }
-
-    while (!is_anc(parent[v], u)) {
-        if (!is_anc(jump[v], u)) {
-            v = jump[v];
-        }
-        else {
-            v = parent[v];
-        }
+    if (lca_memo[v][u] == 0) {
+        if (depth[v] < depth[u]) swap(v, u);
+        lca_memo[v][u] = lca(parent[v], u);
     }
-
-    return parent[v];
+    return lca_memo[v][u];
 }
 
 int main() {
@@ -74,7 +49,6 @@ int main() {
     }
 
     depth[root] = -1;
-    jump[root] = root;
     dfs(root, root);
 
     for (int t = 0; t < q; t++) {

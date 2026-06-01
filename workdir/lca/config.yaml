@@ -7,7 +7,7 @@ memory_limit: 512
 # in MB
 
 subtasks: 4
-number_of_generated_testcases_per_subtask: [20, 20, 20, 20]
+number_of_generated_testcases_per_subtask: [10, 10, 10, 10]
 
 checker: default_checker.cpp
 checker_bin:
@@ -15,7 +15,7 @@ checker_bin:
 model_solution: lca.cpp
 model_solution_bin:
 
-trusted_brute_force_solution: slow1.cpp
+trusted_brute_force_solution: depth.cpp
 
 generator: gen.cpp
 generator_bin:
@@ -24,7 +24,52 @@ input_verifier: inver.cpp
 input_verifier_bin:
 
 other_solutions:
-- name: slow solution using depth
-  program: slow1.cpp
+- name: almost model solution except it breaks in the edgecase that v is already anc of u
+  program: anc_edgecase.cpp
+  program_bin:
+  pass_subtasks: []
+- name: brute-force solution using depth
+  program: depth.cpp
   program_bin:
   pass_subtasks: [1]
+- name: will only pass if the generator specifically generates a list of parents 
+  program: easy_gen_checker.cpp
+  program_bin:
+  pass_subtasks: []
+- name: model solution using euler-tour trick
+  program: euler_tour.cpp
+  program_bin:
+  pass_subtasks: [1, 2, 3, 4]
+- name: model solution using hld
+  program: hld.cpp
+  program_bin:
+  pass_subtasks: [1, 2, 3, 4]
+- name: model solution using binary lifting with jumps
+  program: jump.cpp
+  program_bin:
+  pass_subtasks: [1, 2, 3, 4]
+- name: brute-force solution marking path v - root and checking where path u - root intersects
+  program: mark.cpp
+  program_bin:
+  pass_subtasks: [1]
+- name: almost model solution except it breaks when given a maxtest
+  program: maxtest_detector.cpp
+  program_bin:
+  pass_subtasks: [1, 2, 3]
+- name: semi-brute-force solution using memoization
+  program: memo.cpp
+  program_bin:
+  pass_subtasks: [1, 2]
+- name: almost model solution except it break when root != 1
+  program: root_1_checker.cpp
+  program_bin:
+  pass_subtasks: []
+- name: semi-brute-force solution using sqrt length jumps
+  program: sqrt.cpp
+  program_bin:
+  pass_subtasks: [1, 3]
+- name: simply a very bugged solution
+  program: terrible.cpp
+  program_bin:
+  pass_subtasks: []
+

@@ -28,10 +28,20 @@ sqr jump  - DONE
 precalc all pairs (dp with mem) - DONE
 
 brutal depth - DONE
-brutal mark
+brutal mark - DONE
 
-break when max-test
+break when max-test - DONE
+break when root != 1 - DONE
 
-break when non-sorted test
-mark but no_cleanup
-break specifically on anc or =
+break when non-sorted test - DONE
+mark but no_cleanup as a very bad example - DONE
+break specifically on anc or = - DONE
+
+
+inver is rather simple maybe except OI.h usage
+gen:
+completely random
+binary tree with 
+
+
+don't forget inver_tests!

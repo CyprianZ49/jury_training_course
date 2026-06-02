@@ -12,7 +12,7 @@ const ll maxN = 200009;
 const ll inf = 1000000009;
 
 vector <pll> points;
-vector <pll> hull;
+vector <pll> convex_hull;
 
 ll dist(pll a, pll b) {
     ll x = a.st - b.st;
@@ -56,52 +56,37 @@ int main() {
 
     sort(points.begin(), points.end(), comp);
 
-    hull.pb(points[0]);
-    hull.pb(points[1]);
+    convex_hull.pb(points[0]);
+    convex_hull.pb(points[1]);
     for (int i = 2; i < (int)points.size(); i++) {
-        while (hull.size() >= 2 &&
-               orient(hull[hull.size() - 2],
-                      hull[hull.size() - 1],
+        while (convex_hull.size() >= 2 &&
+               orient(convex_hull[convex_hull.size() - 2],
+                      convex_hull[convex_hull.size() - 1],
                       points[i]) <= 0) {
-            hull.pop_back();
+            convex_hull.pop_back();
         }
-        hull.pb(points[i]);
+        convex_hull.pb(points[i]);
     }
 
-    int s = hull.size();
+    ll best_dist = dist(convex_hull[0], convex_hull[1]);
+    pll best_pair = {0, 1};
 
-    int i1 = 0;
-    int i2 = s - 1;
-    while (hull[i2].nd <= hull[i2 - 1].nd) i2--;
-
-    ll best_dist = dist(hull[i1], hull[i2]);
-    pll best_pair = {i1, i2};
-
-    for (int k = 0; k < 2 * s; k++) {
-        ll o1 = orient(hull[i1], hull[(i1 + 1) % s], hull[i2]);
-        ll o2 = orient(hull[i1], hull[(i1 + 1) % s], hull[(i2 + 1) % s]);
-        if (o1 < o2) {
-            i2 += 1;
-            i2 %= s;
-        }
-        else {
-            i1 += 1;
-            i1 %= s;
-        }
-
-        if (best_dist < dist(hull[i1], hull[i2])) {
-            best_dist = dist(hull[i1], hull[i2]);
-            best_pair = {i1, i2};
+    for (int i = 0; i < (int)convex_hull.size(); i++) {
+        for (int j = i + 1; j < (int)convex_hull.size(); j++) {
+            if (best_dist < dist(convex_hull[i], convex_hull[j])) {
+                best_dist = dist(convex_hull[i], convex_hull[j]);
+                best_pair = {i, j};
+            }
         }
     }
 
-    for (int i = 0; i < s; i++) {
-        hull[i].st += shift_x;
-        hull[i].nd += shift_y;
+    for (int i = 0; i < (int)convex_hull.size(); i++) {
+        convex_hull[i].st += shift_x;
+        convex_hull[i].nd += shift_y;
     }
 
-    cout << hull[best_pair.st].st << " " << hull[best_pair.st].nd << "\n";
-    cout << hull[best_pair.nd].st << " " << hull[best_pair.nd].nd << "\n";
+    cout << convex_hull[best_pair.st].st << " " << convex_hull[best_pair.st].nd << "\n";
+    cout << convex_hull[best_pair.nd].st << " " << convex_hull[best_pair.nd].nd << "\n";
 
     // cout <<setprecision(10) << sqrt(best_dist) << "\n";
 }

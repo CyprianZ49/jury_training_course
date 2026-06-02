@@ -47,6 +47,8 @@ int main() {
             shift_x = x;
             shift_y = y;
         }
+
+        if (max(abs(x), abs(y)) == 1000000000) return 1;
     }
 
     for (int i = 0; i < (int)points.size(); i++) {

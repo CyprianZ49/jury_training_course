@@ -556,7 +556,7 @@ def generate_html_report(all_results, filename="results", verbose = 1):
             html_content.append("<div class='result_card'>")
             html_content.append(f"<span class='test_name'>{html.escape(str(test_name))}</span>")
             html_content.append(f"<span class='status_badge {result.status.lower()}'>{html.escape(result.status)}</span>")
-            html_content.append(f"<span class='time_label'>{result.time}s</span>")
+            html_content.append(f"<span class='time_label'>{result.time / 1000.0}s</span>")
             html_content.append("</div>")
             
         html_content.append("</div>")
@@ -608,10 +608,12 @@ def check_model(cpus, verbose = 1, no_cleanup = False, break_on_fail = False):
     time_limit = config.get("time_limit")
     if not time_limit:
         raise Exception("No time limit set!")
+    time_limit *= 1000
 
     memory_limit = config.get("memory_limit")
     if not memory_limit:
         raise Exception("No memory limit set!")
+    memory_limit *= 1024
 
     # jail
     jail_path = util.get_jail_path()

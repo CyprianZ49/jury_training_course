@@ -54,19 +54,20 @@ int main() {
         points[i].nd -= shift_y;
     }
 
-    sort(points.begin(), points.end(), comp);
+    int current = 0;
+    while (points[current] != (pll){0, 0}) current++;
 
-    hull.pb(points[0]);
-    hull.pb(points[1]);
-    for (int i = 2; i < (int)points.size(); i++) {
-        while (hull.size() >= 2 &&
-               orient(hull[hull.size() - 2],
-                      hull[hull.size() - 1],
-                      points[i]) <= 0) {
-            hull.pop_back();
+    do {
+        hull.pb(points[current]);
+        int next = (current + 1) % n;
+        for (int i = 0; i < n; i++) {
+            ll o = orient(points[current], points[next], points[i]);
+            if (o < 0 || (o == 0 && dist(points[current], points[i]) > dist(points[current], points[next]))) {
+                next = i;
+            }
         }
-        hull.pb(points[i]);
-    }
+        current = next;
+    } while (points[current] != (pll){0, 0});
 
     int s = hull.size();
 

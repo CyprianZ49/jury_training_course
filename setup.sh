@@ -22,6 +22,10 @@ if pip install -e .; then
     echo "sysctl -w kernel.perf_event_paranoid=-1"
 
     echo ""
+    echo "modify thus setpu to run with source"
+    echo "ulimit -s unlimited"
+
+    echo ""
     echo "To activate entry points run:"
     echo "source $VENV_DIR/bin/activate"
 else

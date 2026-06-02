@@ -71,16 +71,16 @@ int main() {
     int s = hull.size();
 
     int i1 = 0;
-    int i2 = s - 1;
-    while (hull[i2].nd <= hull[i2 - 1].nd) i2--;
+    int i2 = 1;
 
     ll best_dist = dist(hull[i1], hull[i2]);
     pll best_pair = {i1, i2};
 
     for (int k = 0; k < 2 * s; k++) {
-        ll o1 = orient(hull[i1], hull[(i1 + 1) % s], hull[i2]);
-        ll o2 = orient(hull[i1], hull[(i1 + 1) % s], hull[(i2 + 1) % s]);
-        if (o1 < o2) {
+        ll d1 = dist(hull[i1], hull[i2]);
+        ll d2 = dist(hull[i1], hull[(i2 + 1) % s]);
+
+        if (d2 >= d1) {
             i2 += 1;
             i2 %= s;
         }
@@ -89,9 +89,15 @@ int main() {
             i1 %= s;
         }
 
-        if (best_dist < dist(hull[i1], hull[i2])) {
-            best_dist = dist(hull[i1], hull[i2]);
-            best_pair = {i1, i2};
+        for (int i = 0; i < min(6, s); i++) {
+            if (best_dist < dist(hull[i1], hull[(i2 + i) % s])) {
+                best_dist = dist(hull[i1], hull[(i2 + i) % s]);
+                best_pair = {i1, (i2 + i) % s};
+            }
+            if (best_dist < dist(hull[i1], hull[(i2 + s - i) % s])) {
+                best_dist = dist(hull[i1], hull[(i2 + s - i) % s]);
+                best_pair = {i1, (i2 + s - i) % s};
+            }
         }
     }
 

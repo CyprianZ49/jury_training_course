@@ -29,8 +29,16 @@ ll orient(pll a, pll b, pll c) {
 }
 
 bool comp (pll x, pll y) {
-    ll o = orient({0, 0}, x, y);
-    if (o != 0) return o > 0;
+    float x1 = x.st;
+    float x2 = x.nd;
+    float y1 = y.st;
+    float y2 = y.nd;
+
+    if (x1 < 0 && y1 >= 0) return false;
+    if (y1 < 0 && x1 >= 0) return true;
+
+    if (x2 / x1 < y2 / y1) return true;
+    if (x2 / x1 > y2 / y1) return false;
     return dist({0, 0}, x) < dist({0, 0}, y);
 }
 

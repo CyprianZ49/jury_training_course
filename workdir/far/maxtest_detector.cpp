@@ -38,6 +38,8 @@ int main() {
     int n;
     cin >> n;
 
+    if (n == 200000) return 1;
+
     ll shift_x = 0, shift_y = inf;
     ll x, y;
     for (int i = 0; i < n; i++) {

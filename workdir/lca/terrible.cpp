@@ -23,7 +23,6 @@ void dfs(int v, int p) {
 }
 
 int lca(int v, int u) {
-    int save_v = v;
     while (v != root) {
         marked[v] = true;
         v = parent[v];
@@ -38,6 +37,10 @@ int lca(int v, int u) {
 }
 
 int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    cout.tie(NULL);
+
     int n, q;
     cin >> n >> q;
     cin >> root;

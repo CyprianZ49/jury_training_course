@@ -1,6 +1,6 @@
 input format:
 
-n (up to 2*10^5) - number of vertices
+n (up to 2*10^5) (at least 2) - number of vertices
 q (up to 2*10^5) - number of queries
 
 r - root

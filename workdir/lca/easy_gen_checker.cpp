@@ -62,9 +62,9 @@ int lca(int v, int u) {
 }
 
 int main() {
-    ios_base::sync_with_stdio(false);
-    cin.tie(NULL);
-    cout.tie(NULL);
+    // ios_base::sync_with_stdio(false);
+    // cin.tie(NULL);
+    // cout.tie(NULL);
 
     int n, q;
     cin >> n >> q;
@@ -81,7 +81,7 @@ int main() {
         if (i >= root && a != i + 1 && b != i + 1) any_interesting_edge = true; 
     }
 
-    if (!any_interesting_edge) return 1;
+    if (any_interesting_edge) return 1;
 
     depth[root] = -1;
     dfs(root, root);

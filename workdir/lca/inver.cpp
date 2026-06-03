@@ -8,19 +8,21 @@ using namespace oi;
 
 Scanner input(stdin, oi::EN);
 
-int subtask_limits_n[4] = {2000, 2000, 200000, 200000};
-int subtask_limits_q[4] = {2000, 200000, 2000, 200000};
+int subtask_limits_n[4] = {10000, 10000, 200000, 200000};
+int subtask_limits_q[4] = {10000, 200000, 10000, 200000};
 
 vector <vector <int> > tree;
+vector <bool> used;
 
 int visited = 0;
 
-void DFS(int v, int p) {
+void DFS(int v) {
     visited += 1;
+    used[v] = true;
 
     for (int i = 0; i < (int)tree[v].size(); i++) {
-        if (tree[v][i] != p) {
-            DFS(tree[v][i], v);
+        if (!used[tree[v][i]]) {
+            DFS(tree[v][i]);
         }
     }
 }
@@ -31,7 +33,7 @@ int main(int argc, char* argv[]) {
     int n_limit = subtask_limits_n[subtask - 1];
     int q_limit = subtask_limits_q[subtask - 1];
 
-    int n = input.readInt(1, n_limit);
+    int n = input.readInt(2, n_limit);
     input.readSpace();
     int q = input.readInt(1, q_limit);
     input.readEoln();
@@ -55,7 +57,10 @@ int main(int argc, char* argv[]) {
         input.readEoln();
     }
 
-    DFS(1, 1);
+    input.readEof();
+
+    used.resize(n + 1);
+    DFS(1);
 
     if (visited != n) {
         cout << "The input graph is not a tree.\n";

@@ -1,13 +1,13 @@
 tag: lca
 name: lowest common ancestor
 
-time_limit: 1.5
+time_limit: 1.3
 # in s
 memory_limit: 512
 # in MB
 
 subtasks: 4
-number_of_generated_testcases_per_subtask: [10, 10, 10, 10]
+number_of_generated_testcases_per_subtask: [20, 20, 20, 20]
 
 checker: default_checker.cpp
 checker_bin:
@@ -67,7 +67,7 @@ other_solutions:
 - name: semi-brute-force solution using sqrt length jumps
   program: sqrt.cpp
   program_bin:
-  pass_subtasks: [1, 3]
+  pass_subtasks: [1, 2, 3]
 - name: simply a very bugged solution
   program: terrible.cpp
   program_bin:

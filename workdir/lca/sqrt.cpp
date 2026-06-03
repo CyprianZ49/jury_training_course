@@ -55,19 +55,23 @@ int lca(int v, int u) {
 }
 
 int main() {
-    ios_base::sync_with_stdio(false);
-    cin.tie(NULL);
-    cout.tie(NULL);
+    // ios_base::sync_with_stdio(false);
+    // cin.tie(NULL);
+    // cout.tie(NULL);
 
     int n, q;
     cin >> n >> q;
     cin >> root;
+    // root = 1;
 
     int a, b;
     for (int i = 1; i < n; i++) {
         cin >> a >> b;
         tree[a].pb(b);
         tree[b].pb(a);
+        // cin >> a;
+        // tree[i + 1].pb(a);
+        // tree[a].pb(i + 1);
     }
 
     depth[root] = -1;

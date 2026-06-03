@@ -8,8 +8,8 @@ using namespace oi;
 
 Scanner input(stdin, oi::EN);
 
-int subtask_limits_n[4] = {10000, 10000, 200000, 200000};
-int subtask_limits_q[4] = {10000, 200000, 10000, 200000};
+int subtask_limits_n[4] = {10000, 10000, 500000, 500000};
+int subtask_limits_q[4] = {10000, 500000, 10000, 500000};
 
 vector <vector <int> > tree;
 vector <bool> used;

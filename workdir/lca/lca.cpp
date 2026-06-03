@@ -4,8 +4,8 @@
 
 using namespace std;
 
-const int maxN = 200009;
-const int log2maxN = 18;
+const int maxN = 500009;
+const int log2maxN = 19;
 
 int root = 0;
 vector <int> tree[maxN];
@@ -49,9 +49,9 @@ int lca(int v, int u) {
 }
 
 int main() {
-    // ios_base::sync_with_stdio(false);
-    // cin.tie(NULL);
-    // cout.tie(NULL);
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    cout.tie(NULL);
 
     int n, q;
     cin >> n >> q;

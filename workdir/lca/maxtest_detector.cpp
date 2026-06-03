@@ -6,7 +6,7 @@
 
 using namespace std;
 
-const int maxN = 200009;
+const int maxN = 500009;
 
 int root = 0;
 vector <int> tree[maxN];
@@ -65,7 +65,7 @@ int main() {
     int n, q;
     cin >> n >> q;
 
-    if (n == 200000 && q == 200000) return 1;
+    if (n == 500000 && q == 500000) return 1;
 
     cin >> root;
 

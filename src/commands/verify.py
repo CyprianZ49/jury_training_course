@@ -17,7 +17,7 @@ from commands.util import print_red, print_yellow, print_green
 
 
 # verifications are always break_on_fail = True
-def internal_verify_package(cpus, verbose = 1, skip_gen = False, raport = False):
+def internal_verify_package(cpus, verbose = 1, skip_gen = False, raport = False, extra_info = None):
     yaml = YAML()
     config_path = "config.yaml"
 
@@ -144,6 +144,8 @@ def internal_verify_package(cpus, verbose = 1, skip_gen = False, raport = False)
                     if verbose > 0:
                         print_red(f"Verification failed: input verification didn't pass.")
                         print(e)
+                    if extra_info is not None:
+                        extra_info.append("inver")
                     return False
 
     if skip_gen and verbose > 0:
@@ -160,6 +162,8 @@ def internal_verify_package(cpus, verbose = 1, skip_gen = False, raport = False)
         if verbose > 0:
             print("Verification failed: model_solution didn't pass.")
             print(e)
+        if extra_info is not None:
+            extra_info.append("model")
         return False
 
     if verbose > 0:
@@ -249,6 +253,8 @@ def internal_verify_package(cpus, verbose = 1, skip_gen = False, raport = False)
             print_red("Some programs do not behave according to config.")
             
     if not all_expected:
+        if extra_info is not None:
+            extra_info.append("other")
         return False
 
     return True

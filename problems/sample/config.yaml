@@ -3,7 +3,7 @@ name: a + b
 
 time_limit: 10
 # in s.... problem with units
-memory_limit: 100000
+memory_limit: 256
 # in MB..... problem with units
 
 subtasks: 2

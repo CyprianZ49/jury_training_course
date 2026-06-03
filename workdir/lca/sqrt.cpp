@@ -4,7 +4,7 @@
 
 using namespace std;
 
-const int maxN = 200009;
+const int maxN = 500009;
 
 int root = 0;
 vector <int> tree[maxN];

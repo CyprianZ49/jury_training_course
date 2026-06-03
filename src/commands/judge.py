@@ -13,6 +13,7 @@ import commands.generate as gen
 import commands.in_ver as inver
 import commands.run as run
 import commands.verify as verfify
+# spelling
 
 from commands.util import print_red, print_yellow, print_green
 
@@ -489,14 +490,20 @@ def judge_package(cpus, raport = False, verbose = 0):
 
     # running
 
-    ver_status = verfify.internal_verify_package(cpus, verbose - 1, False, raport)
+    extra_info = []
+    ver_status = verfify.internal_verify_package(cpus, verbose - 1, False, raport, extra_info)
 
     if not ver_status:
         if verbose > 0:
             print_red("Testcases or generator fail when run on the master package.")
-            print("This can be either because of master input verifier finding mistakes " \
-            "or because your tests are too weak and some solutions pass more subtasks " \
-            "than they should. For more info use higher verbosity.")
+            if (extra_info[0] == "inver"):
+                print("Master input verifier found mistakes.")
+            if (extra_info[0] == "model"):
+                print("Master model solution failed on your tests. As they " \
+                "have passed the input verifier this shouldn't be possible!")
+            if (extra_info[0] == "other"):
+                print("Your tests are too weak and some solutions pass more subtasks " \
+                "than they should.")
         return False
     
     if verbose > 0:

@@ -6,8 +6,8 @@
 
 using namespace std;
 
-const int maxN = 200009;
-const int lp = 262144 * 2;
+const int maxN = 500009;
+const int lp = 524288 * 2;
 const int inf = maxN + 1;
 
 int root = 0;
@@ -72,9 +72,9 @@ int lca(int v, int u) {
 }
 
 int main() {
-    // ios_base::sync_with_stdio(false);
-    // cin.tie(NULL);
-    // cout.tie(NULL);
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    cout.tie(NULL);
 
     int n, q;
     cin >> n >> q;

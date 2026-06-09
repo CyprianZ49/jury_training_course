@@ -1,9 +1,4 @@
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <string>
-#include <cmath>
-#include <iomanip>
+#include <bits/stdc++.h>
 #include "oi.h"
 
 using namespace std;

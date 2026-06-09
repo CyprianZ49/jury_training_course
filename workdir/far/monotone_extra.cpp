@@ -35,6 +35,10 @@ bool comp (pll x, pll y) {
 }
 
 int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    cout.tie(NULL);
+
     int n;
     cin >> n;
 
@@ -89,15 +93,15 @@ int main() {
             i1 %= s;
         }
 
-        for (int i = 0; i < min(6, s); i++) {
+        for (int i = 0; i < min(11, s); i++) {
             if (best_dist < dist(hull[i1], hull[(i2 + i) % s])) {
                 best_dist = dist(hull[i1], hull[(i2 + i) % s]);
                 best_pair = {i1, (i2 + i) % s};
             }
-            if (best_dist < dist(hull[i1], hull[(i2 + s - i) % s])) {
-                best_dist = dist(hull[i1], hull[(i2 + s - i) % s]);
-                best_pair = {i1, (i2 + s - i) % s};
-            }
+            // if (best_dist < dist(hull[i1], hull[(i2 + s - i) % s])) {
+            //     best_dist = dist(hull[i1], hull[(i2 + s - i) % s]);
+            //     best_pair = {i1, (i2 + s - i) % s};
+            // }
         }
     }
 

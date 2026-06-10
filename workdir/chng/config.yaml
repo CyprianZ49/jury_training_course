@@ -1,21 +1,21 @@
 tag: chng
-name:
+name: 0/1 change-making problem with recovery 
 
-time_limit:
+time_limit: 2
 # in s
-memory_limit:
+memory_limit: 512
 # in MB
 
-subtasks: 1
-number_of_generated_testcases_per_subtask: []
+subtasks: 3
+number_of_generated_testcases_per_subtask: [20, 20, 20]
 
-checker: default_checker.cpp
+checker: checker.cpp
 checker_bin:
 
 model_solution: chng.cpp
 model_solution_bin:
 
-trusted_brute_force_solution:
+trusted_brute_force_solution: backtrack.cpp
 
 generator: gen.cpp
 generator_bin:
@@ -24,7 +24,43 @@ input_verifier: inver.cpp
 input_verifier_bin:
 
 other_solutions:
-- name:
-  program:
+- name: brute-force solution using simple backtracking
+  program: backtrack.cpp
+  program_bin:
+  pass_subtasks: [1]
+- name: model solution using standard dp approach, which fits O(n * V) memory complexity in limit using bitsets 
+  program: bitset.cpp
+  program_bin:
+  pass_subtasks: [1, 2, 3]
+- name: a solution which correctly computes the minimal number of coins but outputs nonsensical nominals
+  program: checker_checker.cpp
   program_bin:
   pass_subtasks: []
+- name: greedy algorithm which is incorrect 
+  program: greedy.cpp
+  program_bin:
+  pass_subtasks: []
+- name: a greedy algorithm with extra condition to not go bellow the value of the smallest coin 
+  program: greedy_extra.cpp
+  program_bin:
+  pass_subtasks: []
+- name: an algorithm which attempts a grredy approach on random ordering of coins many times
+  program: greedy_random.cpp
+  program_bin:
+  pass_subtasks: []
+- name: a hybrid algorithm which does a partial backtrack and attemtpts to finish it greedily
+  program: hybrid.cpp
+  program_bin:
+  pass_subtasks: []
+- name: another hybrid algorithm which sacrifices backtrack depth for many randomised tries 
+  program: hybrid_random.cpp
+  program_bin:
+  pass_subtasks: []
+- name: an almost model solution which only fails when test has maximum n and V
+  program: maxtest_detector.cpp
+  program_bin:
+  pass_subtasks: [1, 2]
+- name: a backtrack solution optimised using meet in the middle
+  program: meet.cpp
+  program_bin:
+  pass_subtasks: [1, 2]

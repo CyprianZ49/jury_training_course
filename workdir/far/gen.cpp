@@ -53,7 +53,7 @@ int main(int argc, char* argv[]) {
 
     cout << n << "\n";
 
-    if (test_id < 5) {
+    if (test_id < 4) {
         for (int i = 0; i < n; i++) {
             ll x = rng.randSInt(min_x, max_x);
             ll y = rng.randSInt(min_x, max_x);
@@ -67,7 +67,7 @@ int main(int argc, char* argv[]) {
             }
         }
     }
-    else if (test_id < 11) {
+    else if (test_id < 12) {
         vector <pll> test;
 
         int n_2 = n / 2;
@@ -107,7 +107,9 @@ int main(int argc, char* argv[]) {
             cout << test[i].st << " " << test[i].nd << "\n";
         }
     }
-    else if (test_id < 13) {
+    else if (test_id < 14) {
+        // not good enough
+
         vector <pll> test;
         sort(shifts.begin(), shifts.end(), comp);
         ll m = 20;
@@ -129,7 +131,7 @@ int main(int argc, char* argv[]) {
             test.pb({x, y});
         }
 
-        // rng.randomShuffle(test.begin(), test.end());
+        rng.randomShuffle(test.begin(), test.end());
 
         ll sgn = (test_id % 2 == 0 ? 1 : -1);
         for (int i = 0; i < (int)test.size(); i++) {
@@ -137,6 +139,18 @@ int main(int argc, char* argv[]) {
         }
     }
     else {
-        // generate_biased_tree(n);
+        vector <pll> test;
+
+        for (ll i = 0; (int)test.size() < n; i++) {
+            for (ll j = 0; j <= i && (int)test.size() < n; j++) {
+                test.pb({i, j});
+            }
+        }
+
+        rng.randomShuffle(test.begin(), test.end());
+
+        for (int i = 0; i < (int)test.size(); i++) {
+            cout << test[i].st << " " << test[i].nd << "\n";
+        }
     }
 }

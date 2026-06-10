@@ -1,0 +1,34 @@
+tag: sample
+name: simple addition
+
+time_limit: 1
+# in s
+memory_limit: 128
+# in MB
+
+subtasks: 2
+number_of_generated_testcases_per_subtask: [10, 10]
+
+checker: default_checker.cpp
+checker_bin:
+
+model_solution: sample.cpp
+model_solution_bin:
+
+trusted_brute_force_solution:
+
+generator: gen.cpp
+generator_bin:
+
+input_verifier: inver.cpp
+input_verifier_bin:
+
+other_solutions:
+- name: solution using integeres instead of long longs
+  program: integer.cpp
+  program_bin:
+  pass_subtasks: [1]
+- name: a completely wrong solution
+  program: bad.cpp
+  program_bin:
+  pass_subtasks: []

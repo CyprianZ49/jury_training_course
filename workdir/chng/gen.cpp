@@ -12,27 +12,11 @@ using namespace oi;
 
 Random rng;
 
-int subtask_limits_n[2] = {10000, 200000};
-ll min_x = -1000000000;
-ll max_x = 1000000000;
+int subtask_limits_n[3] = {24, 48, 5000};
+int max_V = 20000;
 
-ll orient(pll a, pll b, pll c) {
-    b.st -= a.st;
-    b.nd -= a.nd;
-    c.st -= a.st;
-    c.nd -= a.nd;
-    return b.st * c.nd - c.st * b.nd;
-}
-
-bool comp (pll x, pll y) {
-    ll o = orient({0, 0}, x, y);
-    return o < 0;
-}
-
-vector <pll> shifts;
-vector <pll> shifts2;
-
-map <pll, bool> used;
+vector <int> coins;
+int V, n;
 
 int main(int argc, char* argv[]) {
     int subtask = atoi(argv[1]);
@@ -41,102 +25,84 @@ int main(int argc, char* argv[]) {
     int seed = 23 + test_id;
     rng.setSeed(seed);
 
-    for (ll i = 1; i <= 680; i++) {
-        for (ll j = 1; j <= 680; j++) {
-            if (__gcd(i, j) == 1) {
-                shifts.pb({i, j});
-            }
-        }
-    }
+    n = subtask_limits_n[subtask - 1];
 
-    int n = subtask_limits_n[subtask - 1];
-
-    cout << n << "\n";
-
-    if (test_id < 5) {
+    if (test_id < 8) {
+        int l = (rng.randUInt() % 20) + 50;
+        int m = min(10, n / 3);
         for (int i = 0; i < n; i++) {
-            ll x = rng.randSInt(min_x, max_x);
-            ll y = rng.randSInt(min_x, max_x);
-            pll xy = {x, y};
-            if (used[xy]) {
-                i--;
+            if (i % 3 == 0) coins.pb(l);
+            if (i % 3 == 1) coins.pb(l - 1);
+            if (i % 3 == 2) coins.pb(1 + (rng.randUInt() % (l - m - 1)));
+        }
+        V = (n / 3) * l - m;
+        while (V > max_V) V -= l; 
+    }
+    else if (test_id < 15) {
+        V = 0;
+        int primes[4] = {2, 3, 5, 7};
+
+        int o = 1;
+        int c;
+        for (int i = 0; i < 4; i++) {
+            o *= primes[i];
+            for (int j = 1; j < primes[i]; j++) {
+                int k = (rng.randUInt() % 15) + 1;
+                c = o * k + 1;
+                coins.pb(c);
+                V += c;
             }
-            else {
-                used[xy] = true;
-                cout << x << " " << y << "\n";
+        }
+
+        while ((int)coins.size() > n) {
+            coins.pop_back();
+        }
+
+        for (int i = (int)coins.size(); i < n; i++) {
+            int k = (rng.randUInt() % 30) + 1;
+            c = o * k;
+            coins.pb(c);
+            if (V + c <= max_V) {
+                V += c;
+            }
+        }
+
+        if (V > max_V) {
+            V = max_V;
+        }
+    }
+    else if (test_id < 18) {
+        for (int i = 0; i < n; i++) {
+            int r = (rng.randUInt() % (max_V / 4)) + 1;
+            coins.pb(r);
+        }
+
+        V = 0;
+        for (int i = 0; i < n; i++) {
+            if (V + coins[i] <= max_V) {
+                V += coins[i];
             }
         }
     }
-    else if (test_id < 11) {
-        vector <pll> test;
-
-        int n_2 = n / 2;
-        for (int i = 0; i < n_2; i++) {
-            ll r = rng.randUInt() % shifts.size();
-            shifts2.pb(shifts[r]);
-            swap(shifts[r], shifts.back());
-            shifts.pop_back();
-        }
-        sort(shifts2.begin(), shifts2.end(), comp);
-        ll sum_x = 0, sum_y = 0;
-        for (int i = 0; i < (int)shifts2.size(); i++) {
-            sum_x += shifts2[i].st;
-            sum_y += shifts2[i].nd;
-        }
-        ll x, y;
-        x = -sum_x;
-        y = 0;
-        for (int i = 0; i < (int)shifts2.size() && n > 0; i++) {
-            test.pb({x, y});
-            n--;
-            x += shifts2[i].st;
-            y += shifts2[i].nd;
-        }
-        x = sum_x;
-        y = 0;
-        for (int i = 0; i < (int)shifts2.size() && n > 0; i++) {
-            test.pb({x, y});
-            n--;
-            x -= shifts2[i].st;
-            y -= shifts2[i].nd;
-        }
-
-        rng.randomShuffle(test.begin(), test.end());
-
-        for (int i = 0; i < (int)test.size(); i++) {
-            cout << test[i].st << " " << test[i].nd << "\n";
-        }
-    }
-    else if (test_id < 13) {
-        vector <pll> test;
-        sort(shifts.begin(), shifts.end(), comp);
-        ll m = 20;
-        ll x, y;
-        x = min_x;
-        y = 0;
-        for (int i = 0; i < n - m - 2 - 1; i++) {
-            test.pb({x, y});
-            x += shifts[i].st;
-            y += shifts[i].nd;
-        }
-        test.pb({x, y});
-        x += 1;
-        test.pb({x, y});
-        test.pb({x, min_x});
-        for (int i = 0; i < m; i++) {
-            x += 1000000 + i;
-            y -= 1;
-            test.pb({x, y});
-        }
-
-        // rng.randomShuffle(test.begin(), test.end());
-
-        ll sgn = (test_id % 2 == 0 ? 1 : -1);
-        for (int i = 0; i < (int)test.size(); i++) {
-            cout << test[i].st * sgn << " " << test[i].nd << "\n";
-        }
+    else if (test_id < 19) {
+        V = max_V;
+        for (int i = 0; i < 2; i++) coins.pb(max_V / 2);
+        for (int i = 2; i < n; i++) coins.pb(max_V  - 1);
     }
     else {
-        // generate_biased_tree(n);
+        for (int i = 0; i < n; i++) {
+            int r = (rng.randUInt() % (max_V / 4)) + 1;
+            coins.pb(r);
+        }
+
+        V = (rng.randUInt() % max_V) + 1;
     }
+
+    rng.randomShuffle(coins.begin(), coins.end());
+
+    cout << n << " " << V << "\n";
+    for (int i = 0; i < n; i++) {
+        cout << coins[i] << " ";
+    }
+    cout << "\n";
 }

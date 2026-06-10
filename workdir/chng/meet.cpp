@@ -35,6 +35,10 @@ void backtrack(int i, int sum, int count, int h, int max_i, int V) {
 }
 
 int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    cout.tie(NULL);
+    
     int n, V;
     cin >> n >> V;
 
@@ -45,7 +49,7 @@ int main() {
     }
 
     for (int h = 0; h <= 1; h++) {
-        for (int i = 0; i < maxN; i++) {
+        for (int i = 0; i < maxV; i++) {
             best[h][i].st = inf;
         }
         best[h][0].st = 0;

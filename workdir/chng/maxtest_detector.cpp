@@ -19,10 +19,14 @@ int dp[maxV];
 bitset <maxV> improved[maxN];
 
 int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    cout.tie(NULL);
+    
     int n, V;
     cin >> n >> V;
 
-    if (n == 5000 && V == 20000) return 1;
+    if (n == 5000) return 1;
 
     int c;
     for (int i = 0; i < n; i++) {

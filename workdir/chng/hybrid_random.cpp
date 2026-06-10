@@ -35,6 +35,10 @@ void backtrack(int i, int sum, int count, int h, int max_i, int V) {
 }
 
 int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    cout.tie(NULL);
+    
     mt19937 rng(23);
 
     int n, V;

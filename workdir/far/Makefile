@@ -7,15 +7,13 @@ FAR_FLAGS = $(DEFAULT_FLAGS)
 GEN_FLAGS = $(DEFAULT_FLAGS)
 INVER_FLAGS = $(DEFAULT_FLAGS)
 BRUTE_N2_FLAGS = $(DEFAULT_FLAGS)
-CONVEX_BUG_FLAGS = $(DEFAULT_FLAGS)
 HULL_N2_FLAGS = $(DEFAULT_FLAGS)
 JARVIS_FLAGS = $(DEFAULT_FLAGS)
 MAXTEST_DETECTOR_FLAGS = $(DEFAULT_FLAGS)
 MONOTONE_FLAGS = $(DEFAULT_FLAGS)
-MONOTONE_EXTRA_FLAGS = $(DEFAULT_FLAGS)
 TERRIBLE_FLAGS = $(DEFAULT_FLAGS)
 
-TARGETS = $(BIN_DIR)/checker $(BIN_DIR)/far $(BIN_DIR)/gen $(BIN_DIR)/inver $(BIN_DIR)/brute_n2 $(BIN_DIR)/convex_bug $(BIN_DIR)/hull_n2 $(BIN_DIR)/jarvis $(BIN_DIR)/maxtest_detector $(BIN_DIR)/monotone $(BIN_DIR)/monotone_extra $(BIN_DIR)/terrible
+TARGETS = $(BIN_DIR)/checker $(BIN_DIR)/far $(BIN_DIR)/gen $(BIN_DIR)/inver $(BIN_DIR)/brute_n2 $(BIN_DIR)/hull_n2 $(BIN_DIR)/jarvis $(BIN_DIR)/maxtest_detector $(BIN_DIR)/monotone $(BIN_DIR)/terrible
 
 all: $(BIN_DIR) $(TARGETS)
 
@@ -37,9 +35,6 @@ $(BIN_DIR)/inver: inver.cpp
 $(BIN_DIR)/brute_n2: brute_n2.cpp
 	$(CXX) $(BRUTE_N2_FLAGS) brute_n2.cpp -o $(BIN_DIR)/brute_n2
 
-$(BIN_DIR)/convex_bug: convex_bug.cpp
-	$(CXX) $(CONVEX_BUG_FLAGS) convex_bug.cpp -o $(BIN_DIR)/convex_bug
-
 $(BIN_DIR)/hull_n2: hull_n2.cpp
 	$(CXX) $(HULL_N2_FLAGS) hull_n2.cpp -o $(BIN_DIR)/hull_n2
 
@@ -51,9 +46,6 @@ $(BIN_DIR)/maxtest_detector: maxtest_detector.cpp
 
 $(BIN_DIR)/monotone: monotone.cpp
 	$(CXX) $(MONOTONE_FLAGS) monotone.cpp -o $(BIN_DIR)/monotone
-
-$(BIN_DIR)/monotone_extra: monotone_extra.cpp
-	$(CXX) $(MONOTONE_EXTRA_FLAGS) monotone_extra.cpp -o $(BIN_DIR)/monotone_extra
 
 $(BIN_DIR)/terrible: terrible.cpp
 	$(CXX) $(TERRIBLE_FLAGS) terrible.cpp -o $(BIN_DIR)/terrible

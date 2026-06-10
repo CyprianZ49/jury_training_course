@@ -39,25 +39,35 @@ int main(int argc, char *argv[]) {
     model_file >> model_ans;
 
     int user_ans;
-    user_ans = user_file.readUInt();
+    user_ans = user_file.readInt();
     user_file.readEoln();
+
+    if (model_ans != user_ans) {
+        cout << "Wrong number of coins\n";
+        return 1;
+    }
 
     int sum = 0;
     for (int i = 0; i < user_ans; i++) {
         c = user_file.readUInt();
         user_file.readSpace();
+
         if (coins[c] <= 0) {
             cout << "There are no coins of value " << c << "left\n";
             return 1;
         }
         coins[c] -= 1;
+        
         sum += c;
     }
 
-    user_file.readEoln();
+    if (model_ans != -1) {
+        user_file.readEoln();
+    }
+
     user_file.readEof();
 
-    if (sum != V) {
+    if (sum != V && model_ans != -1) {
         cout << "Your coins do not add up to the correct sum\n";
         return 1;
     }

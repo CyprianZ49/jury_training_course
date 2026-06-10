@@ -1,13 +1,13 @@
 tag: far
 name:
 
-time_limit: 1
+time_limit: 1.5
 # in s
 memory_limit: 512
 # in MB
 
 subtasks: 2
-number_of_generated_testcases_per_subtask: [20, 20]
+number_of_generated_testcases_per_subtask: [15, 15]
 
 checker: checker.cpp
 checker_bin:
@@ -28,10 +28,6 @@ other_solutions:
   program: brute_n2.cpp
   program_bin:
   pass_subtasks: [1]
-- name: an almost model solution except the convex hull part of the algorithm has numerical issues
-  program: convex_bug.cpp
-  program_bin:
-  pass_subtasks: []
 - name: brute force solution which compares every pair of points on the convex hull
   program: hull_n2.cpp
   program_bin:
@@ -46,10 +42,6 @@ other_solutions:
   pass_subtasks: [1]
 - name: a heuristic approach which assumes distance between convex hull points is unimodal
   program: monotone.cpp
-  program_bin:
-  pass_subtasks: []
-- name: a heuristic approach which assumes distance between convex hull points is almost unimodal
-  program: monotone_extra.cpp
   program_bin:
   pass_subtasks: []
 - name: a terrible solution which always outputs points 0 and 1

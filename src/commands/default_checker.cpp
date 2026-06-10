@@ -1,3 +1,5 @@
+// modified code by Karol Pokorski
+
 #include <iostream>
 #include <fstream>
 #include <vector>

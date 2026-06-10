@@ -58,6 +58,7 @@ def check(checker_path, in_dir_path, out_dir_path, test_name, model_solution_pat
         return -1, f"Checker error: Exception {e}."
 
 
+# based on Sinol-make by Tomasz Grześkiewicz
 def run(jail_path, in_dir_path, out_dir_path, test_name, program_bin_path, time_limit, 
         memory_limit, checker_path, model_solution_path, do_cleanup, use_default_out = False):
 

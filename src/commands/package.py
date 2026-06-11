@@ -60,6 +60,12 @@ def create_package(tag, subtasks, verbose = 1):
         os.makedirs(os.path.join(subtask_path, "in"), exist_ok=True)
         os.makedirs(os.path.join(subtask_path, "out"), exist_ok=True)
 
+    inver_tests_path = os.path.join(tag, "inver_tests")
+
+    for i in range(1, subtasks + 1):
+        subtask_path = os.path.join(testcases_path, str(i))
+        os.makedirs(os.path.join(inver_tests_path, "in"), exist_ok=True)
+
     os.makedirs(os.path.join(tag, "tmp"))
 
     if verbose > 0:

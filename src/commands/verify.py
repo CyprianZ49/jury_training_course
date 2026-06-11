@@ -149,7 +149,27 @@ def internal_verify_package(cpus, verbose = 1, skip_gen = False, raport = False,
                     return False
 
     if skip_gen and verbose > 0:
-        print("Tests generation and verification was skipped.")
+        print("Test generation and verification was skipped.")
+
+    # test inver
+
+    if verbose > 0:
+        print("Verifing that input verifier doesn't pass any inver_tests.")
+
+    for s in range(1, subtasks + 1):
+        try:
+            passed = inver.test_inver(s, cpus, 0)
+            if not passed:
+                raise Exception(f"Input verifier passed some tests from inver_tests for subtask {s}")
+        except Exception as e:
+            if verbose > 0:
+                print_red(f"Verification failed: inver_tests verification didn't pass.")
+                print(e)
+            if extra_info is not None:
+                extra_info.append("inver_tests")
+            return False
+        
+    # 
 
     if verbose > 0:
         print("Verifying model_solution using testcases and trusted brute-force solution.")

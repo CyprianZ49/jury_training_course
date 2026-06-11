@@ -15,7 +15,7 @@ checker_bin:
 model_solution: sample.cpp
 model_solution_bin:
 
-trusted_brute_force_solution:
+trusted_brute_force_solution: integer.cpp
 
 generator: gen.cpp
 generator_bin:

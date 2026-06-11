@@ -102,7 +102,10 @@ int main(int argc, char* argv[]) {
 
     cout << n << " " << V << "\n";
     for (int i = 0; i < n; i++) {
-        cout << coins[i] << " ";
+        cout << coins[i];
+        if (i != n - 1){
+            cout << " ";
+        }
     }
     cout << "\n";
 }

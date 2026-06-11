@@ -16,5 +16,6 @@ make_testcase = commands.run:generate_testcase_from_program_command
 prepare_makefile = commands.prepare_makefile:command_prepare_makefile
 run_tests = commands.run:command_run_tests
 setup_sio2jail = sio2jail.setup_sio2jail:setup_sio2jail
+test_inver = commands.in_ver:command_test_inver
 verify_package = commands.verify:command_internal_verify_package
 verify_tests = commands.in_ver:command_verify_tests

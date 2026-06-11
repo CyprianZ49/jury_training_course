@@ -29,10 +29,60 @@ bool comp (pll x, pll y) {
     return o < 0;
 }
 
+ll dist(pll a, pll b) {
+    ll x = a.st - b.st;
+    ll y = a.nd - b.nd;
+    return x * x + y * y;
+}
+
+ll find_y(ll x, ll radius) {
+    ll l = 0;
+    ll r = max_x;
+    while (l != r) {
+        ll m = (l + r + 1) / 2;
+        if (dist({0, 0}, {x, m}) <= dist({0, 0}, {0, radius})) {
+            l = m;
+        }
+        else {
+            r = m - 1;
+        }
+    }
+    return l;
+}
+
 vector <pll> shifts;
 vector <pll> shifts2;
 
 map <pll, bool> used;
+
+vector <pll> get_tooth(ll v) {
+    pll a, b, c;
+    bool success = false;
+
+    while (!success) {
+        a = {v, 0};
+
+        b.st = rng.randSInt(100, v - 1);
+        b.nd = find_y(b.st, v);
+
+        for (ll x = b.st - 1; x > b.st - 100 && x > 0; x--) {
+            ll y = b.nd * (v - x) / (v - b.st);
+            c = {x, y};
+
+            ll d1 = dist({-v, 0}, b);
+            ll d2 = dist({-v, 0}, c);
+
+            if (d2 > d1) {
+                success = true;
+                break;
+            }
+        }
+    }
+
+    vector <pll> ans = {a, b, c};
+
+    return ans;
+}
 
 int main(int argc, char* argv[]) {
     int subtask = atoi(argv[1]);
@@ -67,7 +117,22 @@ int main(int argc, char* argv[]) {
             }
         }
     }
-    else if (test_id < 12) {
+    else if (test_id < 6) {
+        vector <pll> test;
+
+        for (ll i = 0; (int)test.size() < n; i++) {
+            for (ll j = 0; j <= i && (int)test.size() < n; j++) {
+                test.pb({i, j});
+            }
+        }
+
+        rng.randomShuffle(test.begin(), test.end());
+
+        for (int i = 0; i < (int)test.size(); i++) {
+            cout << test[i].st << " " << test[i].nd << "\n";
+        }
+    }
+    else if (test_id < 16) {
         vector <pll> test;
 
         int n_2 = n / 2;
@@ -107,50 +172,31 @@ int main(int argc, char* argv[]) {
             cout << test[i].st << " " << test[i].nd << "\n";
         }
     }
-    else if (test_id < 14) {
-        // not good enough
-
-        vector <pll> test;
-        sort(shifts.begin(), shifts.end(), comp);
-        ll m = 20;
-        ll x, y;
-        x = min_x;
-        y = 0;
-        for (int i = 0; i < n - m - 2 - 1; i++) {
-            test.pb({x, y});
-            x += shifts[i].st;
-            y += shifts[i].nd;
-        }
-        test.pb({x, y});
-        x += 1;
-        test.pb({x, y});
-        test.pb({x, min_x});
-        for (int i = 0; i < m; i++) {
-            x += 1000000 + i;
-            y -= 1;
-            test.pb({x, y});
-        }
-
-        rng.randomShuffle(test.begin(), test.end());
+    else {
+        vector <pll> tooth1 = get_tooth(max_x / 10);
+        vector <pll> tooth2 = get_tooth(max_x / 10);
 
         ll sgn = (test_id % 2 == 0 ? 1 : -1);
-        for (int i = 0; i < (int)test.size(); i++) {
-            cout << test[i].st * sgn << " " << test[i].nd << "\n";
-        }
-    }
-    else {
-        vector <pll> test;
 
-        for (ll i = 0; (int)test.size() < n; i++) {
-            for (ll j = 0; j <= i && (int)test.size() < n; j++) {
-                test.pb({i, j});
+        for (int i = 0; i < 3; i++) {
+            cout << tooth1[i].st * sgn << " " << tooth1[i].nd << "\n";
+        }
+
+        for (int i = 0; i < 3; i++) {
+            cout << tooth2[i].st * sgn *(-1) << " " << tooth2[i].nd * (-1) << "\n";
+        }
+
+        for (int i = 6; i < n; i++) {
+            ll x = rng.randSInt(-10000, 10000);
+            ll y = rng.randSInt(-10000, 10000);
+            pll xy = {x, y};
+            if (used[xy]) {
+                i--;
             }
-        }
-
-        rng.randomShuffle(test.begin(), test.end());
-
-        for (int i = 0; i < (int)test.size(); i++) {
-            cout << test[i].st << " " << test[i].nd << "\n";
+            else {
+                used[xy] = true;
+                cout << x << " " << y << "\n";
+            }
         }
     }
 }

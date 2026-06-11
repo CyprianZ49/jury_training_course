@@ -148,7 +148,7 @@ def command_verify_tests():
         sys.exit(1)
 
     if args.verbose < 0:
-        print("Verbose shouldn't be negative be positive.")
+        print("Verbose shouldn't be negative.")
         sys.exit(1)
 
     break_on_fail = args.break_on_fail
@@ -183,3 +183,87 @@ def command_verify_tests():
         if args.verbose == 0:
             print("For more info use higher verbosity.")
 
+
+def test_inver(subtask, cpus, verbose = 1):
+    try:
+        _, failed = verify_tests(subtask=subtask, cpus=cpus, test_dir="inver_tests", verbose=0, break_on_fail=False)
+    except Exception as e:
+        if verbose > 0:
+            print(f"Running input verifier raised an exception: {e}")
+        return False
+    
+    inver_tests_path = os.path.join("inver_tests", str(subtask), "in")
+    test_count = sum(1 for x in Path(inver_tests_path).iterdir() if x.is_file())
+    if len(failed) != test_count:
+        return False
+    
+    return True
+    
+    
+def command_test_inver():
+    util.ensure_workdir()
+    util.ensure_package()
+
+    parser = argparse.ArgumentParser(description="Tests input verifier using inver_tests expecting that none pass.")
+    
+    parser.add_argument("-c", "--cpus", type=int, default=1, 
+                        help="Number of CPU cores to use for parallel running.")
+
+    parser.add_argument("-s", "--subtask", required=True,
+                        help="Subtask number or 'all'.")
+    
+    parser.add_argument("-v", "--verbose", type=int, default=1,
+                        help="How verbose should the output be. 1 (default) " \
+                        "for each subtask results." \
+                        "0 for only the overall verdict.")
+    
+    args = parser.parse_args()
+
+    yaml = YAML()
+    config_path = "config.yaml"
+
+    with open(config_path, 'r') as f:
+        config = yaml.load(f) or {}
+
+    subtask_number = config.get("subtasks")
+
+    if not subtask_number:
+        print("No subtask number in config. Aborting.")
+        sys.exit(1)
+
+    if args.subtask.lower() == "all":
+        subtasks = range(1, subtask_number + 1)
+    else:
+        try:
+            subtasks = [int(args.subtask)]
+        except ValueError:
+            print(f"Error: Subtask must be a number or 'all'. Received: {args.subtask}")
+            sys.exit(1)
+
+    if subtasks[-1] > subtask_number:
+        print("Cannot test input verifier on a subtask with number larger than subtask number in config. Aborting.")
+        sys.exit(1)
+
+    if args.verbose < 0:
+        print("Verbose shouldn't be.")
+        sys.exit(1)
+
+    all_passed = True
+    for s in subtasks:
+        try:
+            success = test_inver(s, args.cpus, args.verbose)
+        except Exception as e:
+            print(e)
+            all_passed = False
+        
+        if not success:
+            if args.verbose > 0:
+                print(f"Input verifier passed some tests from inver_tests for subtask {s}.") 
+            all_passed = False
+
+    if all_passed:
+        print_green("Input verifier didn't pass any input from inver_tests.")
+    else:
+        print_red("Input verifier passed some tests from inver_tests.")
+        if args.verbose == 0:
+            print("For more info use higher verbosity.")

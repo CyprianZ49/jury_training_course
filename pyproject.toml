@@ -24,6 +24,8 @@ clean_tests = "commands.generate:command_delete_tests"
 verify_tests = "commands.in_ver:command_verify_tests"
 inver = "commands.in_ver:command_verify_tests"
 
+test_inver = "commands.in_ver:command_test_inver"
+
 run_tests = "commands.run:command_run_tests"
 
 check_model = "commands.run:check_model_command"

@@ -7,7 +7,7 @@ memory_limit: 512
 # in MB
 
 subtasks: 2
-number_of_generated_testcases_per_subtask: [15, 15]
+number_of_generated_testcases_per_subtask: [20, 20]
 
 checker: checker.cpp
 checker_bin:

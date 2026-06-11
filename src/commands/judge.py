@@ -422,7 +422,7 @@ def judge_package(cpus, raport = False, verbose = 0):
         test_count = sum(1 for x in Path(inver_tests_path).iterdir() if x.is_file())
         if len(failed) != test_count:
             if verbose > 0:
-                print_red(f"Your input verifier passes a test for subtask {s} which isn't a valid test incorrect.")
+                print_red(f"Your input verifier passes a test for subtask {s} which isn't valid test.")
             return False
 
     if verbose > 0:
@@ -437,7 +437,7 @@ def judge_package(cpus, raport = False, verbose = 0):
     os.chdir(os.path.join(judge_dir, problem_tag))
 
     if verbose > 0:
-        print("Judging testcases and generator.")
+        print("Judging testcases, generator and inver_tests.")
     
     # replacing generator
 
@@ -474,6 +474,19 @@ def judge_package(cpus, raport = False, verbose = 0):
     else:
         raise Exception("User testcases directory not found.")
 
+    # replacing inver_tests
+
+    internal_inver_tests = os.path.join(judge_dir, problem_tag, "inver_tests")
+    user_inver_tests = os.path.join(user_path, "inver_tests")
+
+    if Path(internal_inver_tests).exists():
+        shutil.rmtree(internal_inver_tests)
+
+    if Path(user_inver_tests).exists():
+        shutil.copytree(user_inver_tests, internal_inver_tests)
+    else:
+        raise Exception("User inver_tests directory not found.")
+
     # altering config
 
     config_path = "config.yaml"
@@ -495,7 +508,7 @@ def judge_package(cpus, raport = False, verbose = 0):
 
     if not ver_status:
         if verbose > 0:
-            print_red("Testcases or generator fail when run on the master package.")
+            print_red("Testcases, generator or inver_tests fail when run on the master package.")
             if (extra_info[0] == "inver"):
                 print("Master input verifier found mistakes.")
             if (extra_info[0] == "model"):
@@ -504,10 +517,13 @@ def judge_package(cpus, raport = False, verbose = 0):
             if (extra_info[0] == "other"):
                 print("Your tests are too weak and some solutions pass more subtasks " \
                 "than they should.")
+            if (extra_info[0] == "inver_tests"):
+                print("Model input verifier passed some of your inver_tests. " \
+                "Ensure they are all incorrect.")
         return False
     
     if verbose > 0:
-        print("Testcases and generator are high quality.")
+        print("Testcases, generator and inver_tests are high quality.")
 
     os.chdir(save_dir)
 

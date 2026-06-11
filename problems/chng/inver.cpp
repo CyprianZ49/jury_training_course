@@ -27,7 +27,9 @@ int main(int argc, char *argv[]) {
 
     for (int i = 0; i < n; i++) {
         input.readInt(1, max_V);
-        input.readSpace();
+        if (i != n - 1) {
+            input.readSpace();
+        }
     }
 
     input.readEoln();

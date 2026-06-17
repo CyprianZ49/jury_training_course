@@ -219,6 +219,17 @@ def judge_solution(cpus, raport = False, verbose = 0):
 
     for s in subtask_list:
 
+        gen_test_number = judge_package_config.get("number_of_generated_testcases_per_subtask")
+
+        try:
+            gen.generate_tests(s, 1, gen_test_number[s - 1], cpus, 0)
+        except Exception as e:
+            if verbose > 0:
+                print(f"Generating master tests on subtask {s} raised an exception:")
+                print(e)
+                print("This is considered a failure.")
+            return False
+
         try:
             success, _, results = run.run_tests(s, cpus, "testcases", model_name + ".cpp", 0, False, True)
             all_results.append(("user_model_solution", s, "testcases", results))

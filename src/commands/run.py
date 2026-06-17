@@ -353,8 +353,6 @@ def command_run_tests():
 
     if args.subtask.lower() == "all":
         subtasks = range(1, subtask_number + 1)
-        if no_cleanup:
-            print("Running all with no_cleanup isn't advised as it may easily mislead.")
     else:
         try:
             subtasks = [int(args.subtask)]
@@ -372,6 +370,8 @@ def command_run_tests():
 
     programs = []
     if args.program.lower() == "all":
+        if no_cleanup:
+            print("Running all programs with no_cleanup isn't advised as it may easily mislead.")
         for entry in config.get("other_solutions", []):
             programs.append(entry.get("program"))
     else:

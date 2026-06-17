@@ -24,6 +24,8 @@ source "$VENV_DIR/bin/activate"
 
 ulimit -s unlimited
 
+mkdir judge
+
 pip install --upgrade pip --quiet
 
 if pip install -e .; then
